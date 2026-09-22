@@ -22,6 +22,7 @@ from Bio.Seq import Seq
 
 SEQ_DIR = Path(__file__).resolve().parent.parent / "sequences" / "annotated"
 V2_DIR = Path(__file__).resolve().parent.parent / "sequences" / "v2"
+V3_DIR = Path(__file__).resolve().parent.parent / "sequences" / "v3"
 
 # Orden esperado de partes por constructo (labels tal como los escribe reannotate.py)
 EXPECTED_ORDER = {
@@ -42,6 +43,16 @@ EXPECTED_ORDER = {
         "BBa_B0015", "J23100", "RBS strong (BBa_B0034)", "spacer 7 nt",
         "mazE", "BBa_B0015",
     ],
+    "insert_ftagen_v3": ["P_pht + regulator", "RBS medium (B. subtilis)",
+                         "spacer 7 nt", "eforRed", "BBa_B1002"],
+    "insert_metalgen_v3": ["P_mer + regulator", "RBS strong (B. subtilis)",
+                           "arsR-like regulator", "RBS strong (B. subtilis)",
+                           "spacer 7 nt", "amilCP", "BBa_B1002"],
+    "insert_killswitch_v3": [
+        "J23117", "RBS medium (B. subtilis)", "spacer 7 nt", "mazF-ssrA",
+        "BBa_B0015", "J23100", "RBS strong (B. subtilis)", "spacer 7 nt",
+        "mazE", "BBa_B0015",
+    ],
 }
 
 # Enzimas relevantes para los estandares de ensamblaje en juego
@@ -57,6 +68,13 @@ SITES = {
 # Rango de espaciado RBS -> ATG que se considera funcional
 SPACER_MIN, SPACER_MAX = 5, 12
 
+# El 3' del 16S rRNA de B. subtilis es 3'-UCUUUCCUCCACUAG-5'. El SD aparea
+# con el, asi que la secuencia complementaria ideal es AGGAGGT. B. subtilis
+# exige mas nucleotidos contiguos que E. coli: por debajo de 5 la iniciacion
+# de la traduccion es debil.
+SD_TARGET = "AGGAGGT"
+SD_MIN = 5
+
 
 def count_sites(seq: Seq) -> dict[str, int]:
     s = str(seq).upper()
@@ -67,6 +85,17 @@ def count_sites(seq: Seq) -> dict[str, int]:
         if n:
             out[name] = n
     return out
+
+
+def sd_pairing(rbs_seq: str) -> tuple[int, str]:
+    """Nucleotidos contiguos que el RBS aparea con el 16S de B. subtilis."""
+    s = str(rbs_seq).upper()
+    for length in range(len(SD_TARGET), 2, -1):
+        for i in range(len(SD_TARGET) - length + 1):
+            motif = SD_TARGET[i:i + length]
+            if motif in s:
+                return length, motif
+    return 0, ""
 
 
 def check_cds(feat, record) -> list[str]:
@@ -91,7 +120,8 @@ def check_cds(feat, record) -> list[str]:
 
 def main() -> int:
     failures = 0
-    files = sorted(SEQ_DIR.glob("*.gb")) + sorted(V2_DIR.glob("*.gb"))
+    files = (sorted(SEQ_DIR.glob("*.gb")) + sorted(V2_DIR.glob("*.gb"))
+             + sorted(V3_DIR.glob("*.gb")))
     if not files:
         print(f"No hay archivos en {SEQ_DIR}. Corre antes scripts/reannotate.py",
               file=sys.stderr)
@@ -128,7 +158,20 @@ def main() -> int:
                     aa = len(sub.translate()) - 1
                     print(f"  CDS {f.qualifiers['label'][0]:<12} {len(sub):>5} bp -> {aa:>3} aa  OK")
 
-        # 4. espaciado RBS -> ATG
+        # 4. fuerza del Shine-Dalgarno en B. subtilis
+        for f in feats:
+            if f.type != "RBS":
+                continue
+            n, motif = sd_pairing(f.extract(rec.seq))
+            label = f.qualifiers.get("label", ["?"])[0]
+            line = f"  SD       {label:<24} {n:>3} nt  \"{motif}\""
+            if n >= SD_MIN:
+                print(line + "  OK")
+            else:
+                errs.append(line.strip() +
+                            f" -- debil para B. subtilis (min {SD_MIN} nt)")
+
+        # 5. espaciado RBS -> ATG
         for i, rbs in enumerate(feats):
             if rbs.type != "RBS":
                 continue
@@ -160,7 +203,7 @@ def main() -> int:
                                 + f" (esperado {SPACER_MIN}-{SPACER_MAX} nt) "
                                   "-- ver README, limitacion conocida")
 
-        # 5. sitios de restriccion
+        # 6. sitios de restriccion
         sites = count_sites(rec.seq)
         if sites:
             print(f"  sitios: {', '.join(f'{k}x{v}' for k, v in sorted(sites.items()))}")

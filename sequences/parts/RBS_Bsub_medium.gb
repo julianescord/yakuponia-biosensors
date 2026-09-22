@@ -1,0 +1,14 @@
+LOCUS       RBS_Bsub_medium           11 bp    DNA     linear   SYN 22-SEP-2026
+DEFINITION  Yakuponia / RBS_Bsub_medium.
+ACCESSION   RBS_Bsub_medium
+VERSION     RBS_Bsub_medium
+KEYWORDS    .
+SOURCE      synthetic DNA construct
+  ORGANISM  synthetic DNA construct
+FEATURES             Location/Qualifiers
+     RBS             1..11
+                     /label="RBS B. subtilis medium"
+                     /note="SD AAAGGAGG, apareamiento intermedio; reemplaza BBa_B0032, cuyo SD solo apareaba 4 nt en B. subtilis"
+ORIGIN
+        1 aaaggaggaa a
+//

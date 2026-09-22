@@ -9,9 +9,10 @@ Bootcamp.
 > validada experimentalmente.** Las limitaciones conocidas están listadas
 > abajo y son detectadas automáticamente por `scripts/validate_assembly.py`.
 >
-> El diseño va por su **versión 2**: el modelo cinético reveló tres defectos
-> bloqueantes en la v1 y la v2 los corrige. Ambas versiones se conservan —
-> `sequences/annotated/` es la v1, `sequences/v2/` la corregida.
+> El diseño va por su **versión 3**. Cada versión corrigió defectos que el
+> modelo cinético reveló, y la siguiente encontró que la anterior no bastaba.
+> Las tres se conservan: `sequences/annotated/` (v1), `sequences/v2/`,
+> `sequences/v3/`.
 
 ---
 
@@ -49,19 +50,25 @@ es donde aparecieron los defectos que la secuencia por sí sola no revela.
 
 ### Versiones
 
-| | v1 | v2 |
-|---|---|---|
-| Reportero FtaGen | GFP | **eforRed** (cromoproteína) |
-| Reportero MetalGen | mCherry | **amilCP** (cromoproteína) |
-| Espaciado RBS→ATG | 0 nt | **7 nt** |
-| RBS del reportero MetalGen | ausente | **BBa_B0034 propio** |
-| MazF | sin tag | **fusión ssrA** |
-| Sensor de ftalatos | no da señal | 41 min |
-| Kill switch con plásmido | muere a 95 min | **sobrevive** |
-| Kill switch sin plásmido | muere a 67 min | muere a 68 min |
+| | v1 | v2 | v3 |
+|---|---|---|---|
+| Reportero FtaGen | GFP | eforRed | eforRed |
+| Reportero MetalGen | mCherry | amilCP | amilCP |
+| Espaciado RBS→ATG | 0 nt | 7 nt | 7 nt |
+| RBS del reportero MetalGen | ausente | propio | propio |
+| MazF | sin tag | ssrA | ssrA |
+| RBS | B0032/B0034 | B0032/B0034 | **optimizado *B. subtilis*** |
+| Apareamiento SD | 4–5 nt | 4–5 nt | **6–7 nt** |
+| **Sensor de ftalatos** | no da señal | **no da señal** | **50 min** |
+| **Kill switch con plásmido** | muere 304 min ✗ | sobrevive ✓ | sobrevive ✓ |
+| **Kill switch sin plásmido** | sobrevive ✗ | **sobrevive ✗** | **muere 74 min ✓** |
 
-Los insertos v2 están en `sequences/v2/` y pasan el validador **sin fallas**.
-La v1 se conserva en `sequences/annotated/` como referencia de lo corregido.
+Simulado en chasis *B. subtilis*. La v2 corrigió el espaciado pero conservó
+RBS de *E. coli*, cuyo Shine-Dalgarno no aparea lo suficiente con el 16S de
+*B. subtilis*: el sensor seguía sin dar señal y el kill switch no contenía.
+**Solo la v3 funciona en el chasis real.**
+
+Los insertos v3 están en `sequences/v3/` y pasan el validador **sin fallas**.
 
 ### FtaGen — sensor de ftalatos
 
@@ -184,7 +191,7 @@ cromóforo impone un piso que no se evita optimizando promotor ni RBS. Queda
 ajustar la afirmación a ~45 min, o declarar que los 30 min requieren lector.
 Ver [model/](model/).
 
-### 2. Espaciado RBS→ATG de 0 nt — *corregido en v2*
+### 2. Iniciación de la traducción — *corregido en v3*
 
 En FtaGen y en ambas unidades del kill switch, el codón de inicio está pegado
 al RBS sin espaciador:
@@ -209,10 +216,23 @@ FtaGen v1 no llegaba a dar señal visible en ningún tiempo.
 
 **Defecto adicional encontrado al corregir:** el reportero de MetalGen no tenía
 RBS propio. El único RBS del casete estaba a 324 nt, separado por el arsR
-reverso. La v2 añade un `BBa_B0034` dedicado, haciendo el casete bicistrónico
-explícito.
+reverso. La v2 añade un RBS dedicado, haciendo el casete bicistrónico explícito.
 
-### 3. El kill switch dispara solo — *corregido en v2*
+**Y el espaciado era solo la mitad del problema.** Los RBS del registro iGEM
+están caracterizados en *E. coli*; el 16S de *B. subtilis* exige un
+Shine-Dalgarno más largo:
+
+| RBS | Apareamiento SD | Eficiencia |
+|---|---|---|
+| BBa_B0032 (v1, v2) | 4 nt | 15 % |
+| BBa_B0034 (v1, v2) | 5 nt | 40 % |
+| Bsub medium (v3) | 6 nt | 75 % |
+| Bsub strong (v3) | 7 nt | 100 % |
+
+**Aplicado en la v3:** RBS con SD `AAAGGAGG`/`AAAGGAGGTG`. El validador mide
+este apareamiento y falla por debajo de 5 nt.
+
+### 3. El kill switch no contiene — *corregido en v3*
 
 Hallazgo del modelo cinético, no visible en la secuencia.
 
@@ -233,35 +253,66 @@ kill switch que mata al huésped que debía preservar no es contención.
 **Aumentar la antitoxina no lo arregla**, solo retrasa el disparo.
 
 **Aplicado en la v2:** tag ssrA (AANDENYALAA) en el C-terminal de MazF, que la
-hace sustrato de ClpXP y baja su t½ de ~90 a ~4 min. Eso sube la cota **22×**
-sin tocar promotores ni RBS, y la v2 discrimina correctamente: sobrevive con el
-plásmido, muere a los 68 min al perderlo.
+hace sustrato de ClpXP y baja su t½ de ~90 a ~4 min, subiendo la cota **22×**.
 
-Los márgenes siguen siendo estrechos (35 nM contra un umbral de 50; ventana
-letal de 18 min) y dependen de parámetros no medidos. Detalle en
-[model/](model/).
+**Pero la v2 seguía sin contener.** Con los RBS de *E. coli*, la toxina nunca
+alcanzaba concentración letal en *B. subtilis*: la célula sobrevivía al escape.
+Solo con los RBS de la **v3** el switch discrimina — sobrevive con el plásmido,
+muere a los 74 min al perderlo.
 
-### 4. Estándares de ensamblaje mezclados
+Los márgenes siguen estrechos (26 nM contra un umbral de 50; ventana letal de
+10 min) y dependen de parámetros no medidos. Detalle en [model/](model/).
 
-Hay un prefijo **BioBrick RFC[10]** que no aparece en ningún constructo
-(verificado), sitios **BsaI** (Golden Gate/MoClo) y sitios EcoRI/XbaI/SpeI/PstI
-internos. BioBrick y Golden Gate son estándares incompatibles; hay que elegir
-uno y domesticar el resto de la secuencia en consecuencia.
+### 4. Estándares de ensamblaje — *resuelto al reensamblar*
 
-### 5. Partes de *E. coli* en chasis de *B. subtilis*
+En la v1 había un prefijo **BioBrick RFC[10]** huérfano, sitios **BsaI**
+(Golden Gate) y varios EcoRI/XbaI/SpeI/PstI internos. Al reensamblar desde las
+partes en la v2, los sitios conflictivos desaparecieron:
+
+| | v1 | v2/v3 |
+|---|---|---|
+| BsaI | 1–2 por constructo | **0** |
+| Prefijo BioBrick huérfano | presente | **ausente** |
+| EcoRI/SpeI/PstI | varios | 1 EcoRI + 1 SpeI (solo MetalGen) |
+
+Quedan un `EcoRI` y un `SpeI` internos en la región reguladora de MetalGen.
+Solo hay que domesticarlos si se elige BioBrick RFC[10]; con Golden Gate son
+irrelevantes. Hay además sitios `BsmBI`, relevantes solo para MoClo.
+
+### 5. Partes de *E. coli* en chasis de *B. subtilis* — *parcialmente corregido en v3*
 
 pHT01 y pWB980 son vectores de *B. subtilis*, pero los promotores Anderson, los
-RBS B0032/B0034 y MazEF están caracterizados en *E. coli*. Los Anderson son
-σ70/σA y sí funcionan, pero **con fuerzas relativas distintas a las publicadas**
-— y el kill switch depende justamente de esas fuerzas relativas. Los RBS son
-subóptimos: *B. subtilis* exige Shine-Dalgarno más largo y complementario.
+RBS B0032/B0034 y MazEF están caracterizados en *E. coli*.
 
-### 6. Tamaño de los plásmidos
+**Los RBS ya están corregidos en la v3.** Era el punto más grave: B0032 solo
+aparea 4 nt con el 16S de *B. subtilis*, insuficiente para iniciar traducción.
+El validador ahora mide este apareamiento y falla por debajo de 5 nt.
+
+**Los promotores siguen pendientes.** J23117 tiene un −35 consenso (`TTGACA`)
+pero un −10 lejano al canónico (`GGATTG` frente a `TATAAT`). Las fuerzas
+relativas J23100/J23117 en σA serán distintas a las publicadas, y el kill
+switch depende de esa razón. Esto **no se arregla cambiando de parte: se
+arregla midiendo** en el chasis. Es trabajo de banco.
+
+### 6. Terminador BBa_B1002 sin cola poli-T
+
+Un terminador rho-independiente necesita horquilla **más cola de U**. BBa_B0015
+la tiene (`TTTT`); **BBa_B1002 no tiene ninguna**. Es el terminador de FtaGen y
+MetalGen, así que la terminación será ineficiente y puede haber transcripción
+de lectura corrida. Sustituible por BBa_B0015, que ya se usa en el kill switch.
+
+### 7. Uso de codones — *evaluado, no bloqueante*
+
+Codones raros para *B. subtilis*: 7,4 % en arsR, 4–5 % en MazEF, **0 % en las
+cromoproteínas**. Por debajo del umbral que suele afectar la expresión. No se
+recomienda optimizar sin datos que lo justifiquen.
+
+### 8. Tamaño de los plásmidos
 
 9,5 kb y 10,9 kb son grandes para *B. subtilis*: baja eficiencia de
 transformación y carga metabólica que reduce la señal del reportero.
 
-### 7. Sin validación experimental
+### 9. Sin validación experimental
 
 No hay datos propios: ni curva dosis-respuesta medida, ni límite de detección,
 ni tiempo real hasta señal. El modelo cinético de [model/](model/) da órdenes
@@ -281,7 +332,7 @@ sequences/
   annotated/   ← constructos reanotados, generados por script
 scripts/
   reannotate.py         reconstruye la anotación de la v1 desde las partes
-  build_v2.py           ensambla los insertos v2 aplicando las correcciones
+  build_corrected.py    ensambla los insertos v2 y v3 desde las partes
   validate_assembly.py  valida ambas versiones y reporta defectos
 model/
   kinetics.py           ODEs de los sensores y del kill switch
@@ -302,14 +353,14 @@ regenerarlo:
 ```bash
 python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 python3 scripts/reannotate.py                    # reconstruye la anotación
-.venv/bin/python scripts/build_v2.py             # ensambla la v2 corregida
+.venv/bin/python scripts/build_corrected.py      # ensambla v2 y v3
 .venv/bin/python scripts/validate_assembly.py    # valida ambas versiones
 .venv/bin/python model/run_analysis.py           # análisis cinético
 ```
 
 El validador sale con código 1 mientras queden defectos abiertos. Hoy reporta
-**6, todos de la v1**, que se conserva a propósito como referencia; los tres
-insertos v2 pasan limpios.
+**12: de la v1 y de la v2**, ambas conservadas a propósito como referencia de
+lo corregido. Los tres insertos **v3 pasan limpios**.
 
 ### Por qué reanotar
 
@@ -328,12 +379,15 @@ ArsR/SmtB no anotado.
 - [x] Insertar espaciadores RBS→ATG de 7 nt (limitación 2)
 - [x] Añadir RBS propio al reportero de MetalGen
 - [x] Tag ssrA en MazF para restaurar la contención (limitación 3)
+- [x] RBS con Shine-Dalgarno apto para *B. subtilis* (limitación 5, parcial)
+- [x] Auditar estándares de ensamblaje y uso de codones (limitaciones 4 y 7)
 - [ ] Elegir un único estándar de ensamblaje y domesticar sitios (limitación 4)
-- [ ] Recalibrar el ratio toxina:antitoxina para σA de *B. subtilis* (limitación 5)
 - [x] Modelo cinético (ODEs): dosis-respuesta y tiempo hasta señal
 - [ ] Ajustar la afirmación de tiempo de respuesta a ~45 min, o declarar lector
 - [ ] Evaluar toxina condicional: los márgenes de la v2 son estrechos
-- [ ] Ensamblar los insertos v2 en sus backbones (pHT01, pWB980)
+- [ ] Ensamblar los insertos v3 en sus backbones (pHT01, pWB980)
+- [ ] Sustituir BBa_B1002 por un terminador con cola poli-T (limitación 6)
+- [ ] Medir las fuerzas reales de J23100/J23117 en σA de *B. subtilis*
 - [ ] Protocolo de validación húmeda: cepas, concentraciones, controles
 - [ ] Análisis de sensibilidad global sobre los parámetros del modelo
 

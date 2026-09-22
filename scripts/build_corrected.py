@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Construye la version 2 de los insertos, corrigiendo los defectos hallados.
+"""Construye las versiones corregidas de los insertos (v2 y v3).
 
 Aplica cuatro correcciones documentadas en el README y cuantificadas por el
 modelo cinetico:
@@ -11,6 +11,12 @@ modelo cinetico:
      RBS del casete estaba a 324 nt, separado por el arsR reverso
   4. tag ssrA en el C-terminal de MazF, para desestabilizarla y subir la cota
      de viabilidad del kill switch
+
+La v3 anade una quinta correccion sobre la v2:
+
+  5. RBS con Shine-Dalgarno optimizado para B. subtilis. Los BBa_B0032 y
+     B0034 estan caracterizados en E. coli y solo aparean 4 y 5 nt con el 3'
+     del 16S de B. subtilis, que exige un SD mas largo y contiguo.
 
 Cada inserto v2 se ensambla desde las partes, no se parchea sobre el v1: asi
 la construccion es reproducible y el diff es legible.
@@ -25,7 +31,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 PARTS = ROOT / "sequences" / "parts"
-OUT = ROOT / "sequences" / "v2"
+OUT = {"v2": ROOT / "sequences" / "v2", "v3": ROOT / "sequences" / "v3"}
 
 
 def read_seq(path: Path) -> str:
@@ -101,6 +107,9 @@ LOCUS_NAME = {
     "insert_ftagen_v2": "ins_FtaGen_v2",
     "insert_metalgen_v2": "ins_MetalGn_v2",
     "insert_killswitch_v2": "ins_KillSw_v2",
+    "insert_ftagen_v3": "ins_FtaGen_v3",
+    "insert_metalgen_v3": "ins_MetalGn_v3",
+    "insert_killswitch_v3": "ins_KillSw_v3",
 }
 
 
@@ -136,7 +145,7 @@ def build_mazF_ssrA() -> None:
           f"({len(fused) // 3 - 1} aa)")
 
 
-def render(name: str, layout: list[tuple]) -> str:
+def render(name: str, layout: list[tuple], ver: str = "v2") -> str:
     seq, feats, pos = "", [], 0
     for pname, kind, label, note, strand in layout:
         # Las partes se almacenan ya en la orientacion del inserto, tal como
@@ -173,11 +182,13 @@ def render(name: str, layout: list[tuple]) -> str:
                                   for j in range(0, len(seq[i:i + 60]), 10))
         for i in range(0, len(seq), 60)
     )
+    extra = (", mas RBS optimizado para B. subtilis."
+             if ver == "v3" else ".")
     return (
         f"LOCUS       {LOCUS_NAME[name]:<16} {len(seq):>11} bp    DNA     "
         "linear   SYN 22-SEP-2026\n"
-        f"DEFINITION  Yakuponia / {name}. Version corregida: cromoproteinas, "
-        "espaciadores RBS y tag ssrA.\n"
+        f"DEFINITION  Yakuponia / {name}. Correcciones: cromoproteinas, "
+        f"espaciadores RBS y tag ssrA{extra}\n"
         f"ACCESSION   {name}\nVERSION     {name}\nKEYWORDS    .\n"
         "SOURCE      synthetic DNA construct\n"
         "  ORGANISM  synthetic DNA construct\n"
@@ -186,20 +197,47 @@ def render(name: str, layout: list[tuple]) -> str:
     )
 
 
+# La v3 es la v2 con los RBS sustituidos por versiones aptas para B. subtilis.
+RBS_V3 = {
+    "RBS_medium_B0032": ("RBS_Bsub_medium", "RBS medium (B. subtilis)",
+                         "SD AAAGGAGG, 6 nt de apareamiento con el 16S de "
+                         "B. subtilis; BBa_B0032 solo apareaba 4 nt"),
+    "RBS_strong_B0034": ("RBS_Bsub_strong", "RBS strong (B. subtilis)",
+                         "SD AAAGGAGGTG, 7 nt de apareamiento; BBa_B0034 solo "
+                         "apareaba 5 nt"),
+}
+
+
+def to_v3(layout: list[tuple]) -> list[tuple]:
+    """Devuelve el layout de la v2 con los RBS sustituidos."""
+    out = []
+    for pname, kind, label, note, strand in layout:
+        if pname in RBS_V3:
+            new_part, new_label, new_note = RBS_V3[pname]
+            out.append((new_part, kind, new_label, new_note, strand))
+        else:
+            out.append((pname, kind, label, note, strand))
+    return out
+
+
 def main() -> int:
     print("Construyendo partes derivadas")
     build_mazF_ssrA()
 
-    OUT.mkdir(exist_ok=True)
+    for ver in ("v2", "v3"):
+        OUT[ver].mkdir(exist_ok=True)
+        print()
+        print(f"Construyendo insertos {ver}")
+        for name, layout in LAYOUTS.items():
+            vname = name.replace("_v2", f"_{ver}")
+            lay = layout if ver == "v2" else to_v3(layout)
+            text = render(vname, lay, ver)
+            (OUT[ver] / f"{vname}.gb").write_text(text, encoding="utf8")
+            n = len("".join(re.findall(r"[acgt]", text.split("ORIGIN")[1])))
+            print(f"  {vname:<24} {n:>6} bp  {len(lay)} partes")
+
     print()
-    print("Construyendo insertos v2")
-    for name, layout in LAYOUTS.items():
-        text = render(name, layout)
-        (OUT / f"{name}.gb").write_text(text, encoding="utf8")
-        n = len("".join(re.findall(r"[acgt]", text.split("ORIGIN")[1])))
-        print(f"  {name:<24} {n:>6} bp  {len(layout)} partes")
-    print()
-    print(f"Escritos en {OUT.relative_to(ROOT)}/")
+    print("Escritos en sequences/v2/ y sequences/v3/")
     return 0
 
 

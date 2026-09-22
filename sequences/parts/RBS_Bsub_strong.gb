@@ -1,0 +1,14 @@
+LOCUS       RBS_Bsub_strong           11 bp    DNA     linear   SYN 22-SEP-2026
+DEFINITION  Yakuponia / RBS_Bsub_strong.
+ACCESSION   RBS_Bsub_strong
+VERSION     RBS_Bsub_strong
+KEYWORDS    .
+SOURCE      synthetic DNA construct
+  ORGANISM  synthetic DNA construct
+FEATURES             Location/Qualifiers
+     RBS             1..11
+                     /label="RBS B. subtilis strong"
+                     /note="SD AAAGGAGGTG, 7 nt contiguos de apareamiento con el 3' del 16S de B. subtilis; reemplaza BBa_B0034"
+ORIGIN
+        1 aaaggaggtg a
+//

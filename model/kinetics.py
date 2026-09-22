@@ -100,6 +100,20 @@ def is_viable(ssrA: bool = False) -> bool:
     return p("k_mazF") < max_toxin_synthesis(ssrA)
 
 
+# Eficiencia de iniciacion de la traduccion en B. subtilis segun cuantos
+# nucleotidos contiguos aparea el SD con el 3' del 16S. La relacion es
+# monotona y fuertemente no lineal: por debajo de 5 nt la iniciacion cae.
+# Valores aproximados, usados para comparar disenos, no para predecir.
+SD_EFFICIENCY = {4: 0.15, 5: 0.40, 6: 0.75, 7: 1.00}
+
+
+def rbs_efficiency_from_sd(pairing_nt: int) -> float:
+    """Eficiencia relativa de un RBS a partir de su apareamiento SD."""
+    if pairing_nt in SD_EFFICIENCY:
+        return SD_EFFICIENCY[pairing_nt]
+    return 1.0 if pairing_nt > 7 else 0.05
+
+
 @dataclass
 class SensorConfig:
     """Configuracion de una simulacion de biosensor."""
