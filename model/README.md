@@ -17,14 +17,17 @@ solo no puede contestar.
 
 ## 1. ¿Es alcanzable el "<30 minutos"?
 
-**No para lectura a simple vista.** Ningún reportero cruza el umbral visual
-dentro de 30 min:
+**No para lectura a simple vista, ni siquiera en la v2.** Ningún reportero
+cruza el umbral visual dentro de 30 min:
 
-| Reportero | A simple vista | Con instrumento |
+| Constructo | A simple vista | Con instrumento |
 |---|---|---|
-| GFP | 48 min | 5 min |
-| mCherry | 58 min | 6 min |
-| **cromoproteína** | **41 min** | **5 min** |
+| v1 FtaGen (GFP, RBS 0 nt) | **no alcanza** | 14 min |
+| v1 MetalGen (mCherry) | 58 min | 6 min |
+| **v2 (cromoproteína + espaciador)** | **41 min** | **5 min** |
+
+La v2 restaura la función del sensor de ftalatos, que en v1 no llegaba nunca,
+y baja el tiempo de 58 a 41 min en MetalGen. Pero no rompe el piso.
 
 ![tiempo hasta señal](figures/01_time_to_signal.png)
 
@@ -32,9 +35,9 @@ El cuello de botella no es la transcripción ni la traducción: es la
 **maduración del cromóforo**, que impone un piso de 20–45 min según el
 reportero. Ninguna optimización del promotor o del RBS lo evita.
 
-Esto refina la limitación 1 del README principal. La cromoproteína **sí es la
-elección correcta** —es la más rápida de las tres y no necesita excitación—
-pero no basta para sostener el "<30 min". Las opciones honestas son:
+La cromoproteína **sí era la elección correcta** —es la más rápida y no
+necesita excitación— pero no basta para sostener el "<30 min". Las opciones
+honestas son:
 
 - ajustar la afirmación a **~45 minutos** para lectura visual, o
 - mantener los 30 min y declarar que requiere lector.
@@ -50,12 +53,12 @@ haya señal visible.**
 Es peor que una simple demora. Por debajo del 20 % de eficiencia traduccional,
 el sensor **nunca** alcanza el umbral visual:
 
-| Eficiencia de traducción | Tiempo hasta señal |
-|---|---|
-| 100 % | 41 min |
-| 50 % | 72 min |
-| 20 % | no alcanza |
-| **10 %** (espaciado 0 nt) | **no alcanza** |
+| Eficiencia de traducción | Tiempo hasta señal | |
+|---|---|---|
+| **100 %** | **41 min** | v2, espaciador de 7 nt |
+| 50 % | 72 min | |
+| 20 % | no alcanza | |
+| 10 % | no alcanza | v1, espaciado 0 nt |
 
 La síntesis compite con la dilución por división celular. Por debajo de cierto
 umbral la proteína madura se estabiliza en una meseta bajo el nivel detectable,
@@ -63,7 +66,8 @@ y esperar más no ayuda. El defecto no retrasa el sensor: **lo inutiliza**.
 
 ## 3. ¿El kill switch contiene la célula?
 
-**No, y el problema es estructural.** El hallazgo más importante del modelo.
+**En v1 no, por una razón estructural. En v2 sí.** El hallazgo más importante
+del modelo, y el que motivó la corrección.
 
 ### La cota de viabilidad
 
@@ -74,11 +78,15 @@ degradación. En estado estacionario:
 
 $$k_F < d_F \cdot F_{letal}$$
 
-| | valor |
-|---|---|
-| k_mazF admisible | 0.0064 nM/s |
-| k_mazF del diseño | 0.1 nM/s |
-| | **16× por encima** |
+| | cota admisible | k_mazF del diseño | |
+|---|---|---|---|
+| **v1** (MazF sin tag) | 0.0064 nM/s | 0.1 nM/s | **16× por encima** |
+| **v2** (MazF-ssrA) | 0.1444 nM/s | 0.1 nM/s | dentro de la cota |
+
+La corrección no toca promotores ni RBS: el tag **ssrA** (AANDENYALAA) en el
+C-terminal de MazF la hace sustrato de ClpXP, bajando su t½ de ~90 a ~4 min.
+Eso sube `d_mazF` y con ello la cota **22×**, sin alterar la lógica del
+circuito.
 
 **Aumentar la síntesis de antitoxina no relaja esta cota** — solo retrasa el
 momento en que se alcanza. Es una propiedad del sistema, no un parámetro a
@@ -88,39 +96,30 @@ afinar.
 
 ### Consecuencia: el switch dispara solo
 
-| Escenario | Resultado | Debería |
-|---|---|---|
-| Plásmido retenido | muere a los **95 min** | sobrevivir |
-| Plásmido perdido a 60 min | muere a los **67 min** | morir |
+| Escenario | v1 | v2 | Debería |
+|---|---|---|---|
+| Plásmido retenido | muere **95 min** ✗ | **sobrevive** ✓ | sobrevivir |
+| Plásmido perdido a 60 min | muere 67 min ✓ | muere **68 min** ✓ | morir |
 
 ![kill switch](figures/03_killswitch.png)
 
-El margen entre ambos es de 28 min: **la célula muere tenga o no el plásmido.**
-Un kill switch que mata al huésped que debía preservar no es contención, es
-pérdida del cultivo.
+En v1 el margen entre ambos escenarios era de 28 min: la célula moría tuviera o
+no el plásmido. **La v2 discrimina correctamente.**
 
-Y el defecto de RBS lo empeora: con la antitoxina traducida al 10 %, la muerte
-espuria se adelanta de 95 a 14 min.
+### Los márgenes de la v2 son estrechos
 
-| RBS mazE | Muerte espuria |
-|---|---|
-| 100 % | 95 min |
-| 50 % | 51 min |
-| 20 % | 22 min |
-| 10 % | 14 min |
+Conviene declararlo en vez de presentar la corrección como resuelta:
 
-### Cómo corregirlo
+- En reposo, MazF libre se estabiliza en **35 nM contra un umbral de 50 nM**:
+  quedan solo 15 nM de margen ante variación de parámetros.
+- Tras perder el plásmido, la toxina supera el umbral entre los 68 y los 86
+  min: una **ventana letal de 18 min**. Si la muerte no ocurre dentro de ella,
+  la célula se recupera.
 
-1. **Bajar k_mazF ~16×** — promotor más débil que J23117, o RBS más débil que
-   B0032 en la unidad de la toxina.
-2. **Desestabilizar MazF** con un tag de degradación (ssrA), subiendo `d_mazF`
-   y con ello la cota.
-3. **Hacer condicional la toxina** en vez de constitutiva: que MazF solo se
-   exprese ante la señal de escape, en lugar de correr siempre contra la
-   antitoxina.
-
-La opción 3 es la más robusta: elimina la carrera permanente entre síntesis y
-degradación de la que depende el diseño actual.
+Ambos márgenes dependen de parámetros no medidos. Una corrección más robusta
+sería **hacer la toxina condicional** en vez de constitutiva: que MazF solo se
+exprese ante la señal de escape, eliminando la carrera permanente entre
+síntesis y degradación. Eso es un rediseño, no un ajuste.
 
 ---
 

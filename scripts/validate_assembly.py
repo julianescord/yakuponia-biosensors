@@ -21,6 +21,7 @@ from Bio import SeqIO
 from Bio.Seq import Seq
 
 SEQ_DIR = Path(__file__).resolve().parent.parent / "sequences" / "annotated"
+V2_DIR = Path(__file__).resolve().parent.parent / "sequences" / "v2"
 
 # Orden esperado de partes por constructo (labels tal como los escribe reannotate.py)
 EXPECTED_ORDER = {
@@ -30,6 +31,16 @@ EXPECTED_ORDER = {
     "insert_killswitch": [
         "J23117", "RBS medium (BBa_B0032)", "mazF", "BBa_B0015",
         "J23100", "RBS strong (BBa_B0034)", "mazE", "BBa_B0015",
+    ],
+    "insert_ftagen_v2": ["P_pht + regulator", "RBS medium (BBa_B0032)",
+                         "spacer 7 nt", "eforRed", "BBa_B1002"],
+    "insert_metalgen_v2": ["P_mer + regulator", "RBS strong (BBa_B0034)",
+                           "arsR-like regulator", "RBS strong (BBa_B0034)",
+                           "spacer 7 nt", "amilCP", "BBa_B1002"],
+    "insert_killswitch_v2": [
+        "J23117", "RBS medium (BBa_B0032)", "spacer 7 nt", "mazF-ssrA",
+        "BBa_B0015", "J23100", "RBS strong (BBa_B0034)", "spacer 7 nt",
+        "mazE", "BBa_B0015",
     ],
 }
 
@@ -80,7 +91,7 @@ def check_cds(feat, record) -> list[str]:
 
 def main() -> int:
     failures = 0
-    files = sorted(SEQ_DIR.glob("*.gb"))
+    files = sorted(SEQ_DIR.glob("*.gb")) + sorted(V2_DIR.glob("*.gb"))
     if not files:
         print(f"No hay archivos en {SEQ_DIR}. Corre antes scripts/reannotate.py",
               file=sys.stderr)
@@ -118,8 +129,16 @@ def main() -> int:
                     print(f"  CDS {f.qualifiers['label'][0]:<12} {len(sub):>5} bp -> {aa:>3} aa  OK")
 
         # 4. espaciado RBS -> ATG
-        for rbs, nxt in zip(feats, feats[1:]):
-            if rbs.type == "RBS" and nxt.type == "CDS":
+        for i, rbs in enumerate(feats):
+            if rbs.type != "RBS":
+                continue
+            # El espaciador es parte de la distancia RBS->ATG, no un
+            # elemento intermedio: se mide hasta el CDS que sigue.
+            # Un RBS solo alimenta un CDS de su misma hebra. Si el CDS que
+            # sigue es divergente (arsR), su RBS propio esta rio abajo en la
+            # otra hebra y esta union no se mide aqui.
+            nxt = next((f for f in feats[i + 1:] if f.type == "CDS"), None)
+            if nxt is not None and nxt.location.strand != -1:
                 # Un RBS solo alimenta un CDS de su misma hebra; si el vecino
                 # inmediato es divergente, el CDS relevante es el siguiente.
                 if nxt.location.strand == -1:

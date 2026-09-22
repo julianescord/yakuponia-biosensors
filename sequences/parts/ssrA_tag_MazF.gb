@@ -1,0 +1,14 @@
+LOCUS       ssrA_tag_MazF             36 bp    DNA     linear   SYN 22-SEP-2026
+DEFINITION  Yakuponia / ssrA_tag_MazF.
+ACCESSION   ssrA_tag_MazF
+VERSION     ssrA_tag_MazF
+KEYWORDS    .
+SOURCE      synthetic DNA construct
+  ORGANISM  synthetic DNA construct
+FEATURES             Location/Qualifiers
+     misc_feature    1..36
+                     /label="ssrA degradation tag"
+                     /note="AANDENYALAA C-terminal degradation tag; destabilises MazF to raise the viability bound"
+ORIGIN
+        1 gcagcaaacg acgaaaacta cgctctggca gcctaa
+//

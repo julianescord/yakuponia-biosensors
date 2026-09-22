@@ -1,0 +1,14 @@
+LOCUS       spacer_RBS_7nt             7 bp    DNA     linear   SYN 22-SEP-2026
+DEFINITION  Yakuponia / spacer_RBS_7nt.
+ACCESSION   spacer_RBS_7nt
+VERSION     spacer_RBS_7nt
+KEYWORDS    .
+SOURCE      synthetic DNA construct
+  ORGANISM  synthetic DNA construct
+FEATURES             Location/Qualifiers
+     misc_feature    1..7
+                     /label="RBS-ATG spacer (7 nt)"
+                     /note="spacer restoring functional 7 nt distance between Shine-Dalgarno and start codon"
+ORIGIN
+        1 aattaag
+//

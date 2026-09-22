@@ -62,7 +62,9 @@ PARAMS: dict[str, tuple[float, str, str]] = {
     "k_on": (0.01, "1/(nM s)", "formacion del complejo MazE-MazF"),
     "k_off": (1e-4, "1/s", "disociacion del complejo"),
     "d_mazE": (np.log(2) / 600, "1/s", "MazE degradada por ClpAP, t1/2 ~10 min"),
-    "d_mazF": (np.log(2) / 5400, "1/s", "MazF estable, t1/2 ~90 min"),
+    "d_mazF": (np.log(2) / 5400, "1/s", "MazF sin tag, t1/2 ~90 min (v1)"),
+    "d_mazF_ssrA": (np.log(2) / 240, "1/s",
+                    "MazF con tag ssrA degradada por ClpXP, t1/2 ~4 min (v2)"),
     "tox_lethal": (50.0, "nM", "MazF libre por encima del cual la celula muere"),
 }
 
@@ -72,7 +74,12 @@ def p(name: str) -> float:
     return PARAMS[name][0]
 
 
-def max_toxin_synthesis() -> float:
+def d_toxin(ssrA: bool = False) -> float:
+    """Degradacion de MazF, con o sin el tag ssrA de la v2."""
+    return p("d_mazF_ssrA") if ssrA else p("d_mazF")
+
+
+def max_toxin_synthesis(ssrA: bool = False) -> float:
     """Sintesis maxima de MazF compatible con una celula viable, en nM/s.
 
     En estado estacionario toda MazF sintetizada debe salir del pool libre.
@@ -85,12 +92,12 @@ def max_toxin_synthesis() -> float:
     Aumentar la sintesis de antitoxina NO relaja esta cota: solo retrasa el
     momento en que se alcanza.
     """
-    return p("d_mazF") * p("tox_lethal")
+    return d_toxin(ssrA) * p("tox_lethal")
 
 
-def is_viable() -> bool:
-    """True si el diseno actual permite una celula viable en equilibrio."""
-    return p("k_mazF") < max_toxin_synthesis()
+def is_viable(ssrA: bool = False) -> bool:
+    """True si el diseno permite una celula viable en equilibrio."""
+    return p("k_mazF") < max_toxin_synthesis(ssrA)
 
 
 @dataclass
@@ -196,6 +203,7 @@ class KillSwitchConfig:
     rbs_mazE: float = 1.0
     rbs_mazF: float = 1.0
     plasmid_lost_at: float | None = None  # s; None = la celula retiene el plasmido
+    ssrA: bool = False                    # True = MazF lleva el tag de la v2
 
 
 def _ks_rhs(t: float, y: np.ndarray, cfg: KillSwitchConfig) -> list[float]:
@@ -214,7 +222,7 @@ def _ks_rhs(t: float, y: np.ndarray, cfg: KillSwitchConfig) -> list[float]:
     release = p("d_mazE") * c
 
     d_e = p("k_mazE") * cfg.rbs_mazE * on - p("d_mazE") * e - bind + unbind
-    d_f = (p("k_mazF") * cfg.rbs_mazF * on - p("d_mazF") * f
+    d_f = (p("k_mazF") * cfg.rbs_mazF * on - d_toxin(cfg.ssrA) * f
            - bind + unbind + release)
     d_c = bind - unbind - release
     return [d_e, d_f, d_c]

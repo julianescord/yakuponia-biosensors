@@ -1,0 +1,21 @@
+LOCUS       mazF_ssrA                369 bp    DNA     linear   SYN 22-SEP-2026
+DEFINITION  Yakuponia / mazF_toxin_ssrA.
+ACCESSION   mazF_toxin_ssrA
+VERSION     mazF_toxin_ssrA
+KEYWORDS    .
+SOURCE      synthetic DNA construct
+  ORGANISM  synthetic DNA construct
+FEATURES             Location/Qualifiers
+     CDS             1..369
+                     /label="mazF-ssrA"
+                     /note="MazF fused in frame to the AANDENYALAA
+                     ssrA degradation tag"
+ORIGIN
+        1 atggtaagcc gatacgtacc cgatatgggc gatctgattt gggttgattt tgacccgaca
+       61 aaaggtagcg agcaagctgg acatcgtcca gctgttgtcc tgagtccttt catgtacaac
+      121 aacaaaacag gtatgtgtct gtgtgttcct tgtacaacgc aatcaaaagg atatccgttc
+      181 gaagttgttt tatccggtca ggaacgtgat ggcgtagcgt tagctgatca ggtaaaaagt
+      241 atcgcctggc gggcaagagg agcaacgaag aaaggaacag ttgccccaga ggaattacaa
+      301 ctcattaaag ccaaaattaa cgtactgatt ggggcagcaa acgacgaaaa ctacgctctg
+      361 gcagcctaa
+//
