@@ -1,0 +1,49 @@
+LOCUS       Inserto_KS               944 bp ds-DNA     linear       01-FEB-2026
+DEFINITION  .
+FEATURES             Location/Qualifiers
+     misc_feature    1..35
+                     /label="J23117"
+     misc_feature    36..48
+                     /label="RBS Medio"
+     misc_feature    49..387
+                     /label="MazF toxin"
+     misc_feature    388..516
+                     /label="Terminador KS"
+                     /ApEinfo_revcolor="#d6b295"
+                     /ApEinfo_fwdcolor="#d6b295"
+     misc_feature    388..516
+                     /label="Terminador KS BBa_B0015"
+     misc_feature    517..551
+                     /label="J23100"
+     misc_feature    552..563
+                     /label="RBS Fuerte"
+     misc_feature    564..815
+                     /label="MazF antitoxin"
+                     /ApEinfo_revcolor="#b1ff67"
+                     /ApEinfo_fwdcolor="#b1ff67"
+     misc_feature    564..815
+                     /label="MazE antitoxin"
+     misc_feature    816..944
+                     /label="Terminador KS"
+                     /ApEinfo_revcolor="#d6b295"
+                     /ApEinfo_fwdcolor="#d6b295"
+     misc_feature    816..944
+                     /label="Terminador KS BBa_B0015"
+ORIGIN
+        1 ttgacagcta gctcagtcct agggattgtg ctagctcaca caggaaagat ggtaagccga
+       61 tacgtacccg atatgggcga tctgatttgg gttgattttg acccgacaaa aggtagcgag
+      121 caagctggac atcgtccagc tgttgtcctg agtcctttca tgtacaacaa caaaacaggt
+      181 atgtgtctgt gtgttccttg tacaacgcaa tcaaaaggat atccgttcga agttgtttta
+      241 tccggtcagg aacgtgatgg cgtagcgtta gctgatcagg taaaaagtat cgcctggcgg
+      301 gcaagaggag caacgaagaa aggaacagtt gccccagagg aattacaact cattaaagcc
+      361 aaaattaacg tactgattgg gtaataacca ggcatcaaat aaaacgaaag gctcagtcga
+      421 aagactgggc ctttcgtttt atctgttgtt tgtcggtgaa cgctctctac tagagtcaca
+      481 ctggctcacc ttcgggtggg cctttctgcg tttatattga cggctagctc agtcctaggt
+      541 acagtgctag caaagaggag aaaatgatcc acagtagcgt aaagcgttgg ggaaattcac
+      601 cggcggtgcg gatcccggct acgttaatgc aggcgctcaa tctgaatatt gatgatgaag
+      661 tgaagattga cctggtggat ggcaaattaa ttattgagcc agtgcgtaaa gagcccgtat
+      721 ttacgcttgc tgaactggtc aacgacatca cgccggaaaa cctccacgag aatatcgact
+      781 ggggagagcc gaaagataag gaagtctggt aataaccagg catcaaataa aacgaaaggc
+      841 tcagtcgaaa gactgggcct ttcgttttat ctgttgtttg tcggtgaacg ctctctacta
+      901 gagtcacact ggctcacctt cgggtgggcc tttctgcgtt tata
+//

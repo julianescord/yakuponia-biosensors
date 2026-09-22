@@ -1,0 +1,28 @@
+LOCUS       Promotor_ftalatos       1095 bp ds-DNA     linear       01-FEB-2026
+DEFINITION  .
+FEATURES             Location/Qualifiers
+     misc_feature    1..1095
+                     /label="Promotor ftalatos"
+                     /ApEinfo_revcolor="#ffef86"
+                     /ApEinfo_fwdcolor="#ffef86"
+ORIGIN
+        1 gtttgatccc cgtcaacggc atagtatatc ggcatagtat aatacgacat ggatttttgc
+       61 ttattgaacg agaaaagtca gatcttcgtc cacgccgagc cctatgcagt ctccgattat
+      121 gttaaccagt atgtcggtac gcactctatt cgcctgccca ggggcgggcg cccggcaggc
+      181 aggctgcacc acagaatctt cggatgcctc gatctgtgtc gaatcagcta cggcggtagc
+      241 gtgagggtaa tctcgcctgg attagagacg tgttatcatc tgcaaataat actcaaaggc
+      301 cattgcctgt ggcgtggcca tggccaggag cactattttg cgccgggcga actattgctg
+      361 ctcaatccgg atgaccaagc cgacctgacc tattcagaag attgcgagaa atttatcgtt
+      421 aaattgccct cagtggtcct tgatcgggcg tgcagtgaca acaattggca caagccgagg
+      481 gagggtatcc gtttcgccgc gcgacacaat ctccagcaac tcgatggctt tatcaatcta
+      541 ctcgggttag tttgtgacga agcggaacat acaaagtcga tgcctcgggt ccaagagcac
+      601 tatgcgggga tcatcgcttc caagctgctc gaaatgctgg gcagcaatgt cagccgtgaa
+      661 attttcagca aaggtaaccc gtctttcgag cgagtcgttc aattcattga ggagaatcag
+      721 aaacggaata tcagccttga gcggttagcg gagctggcga tgatgagtcc acgctcgctc
+      781 tacaatttgt tcgagaagca cgccggcacc acgccgaaga actacatccg caaccgcaag
+      841 ctcgaaagca tccgcgcctg cttgaacgat cccagtgcca atgtgcgtag tataactgag
+      901 atagccctag actacggctt cttacatttg ggacgcttcg ctgaaaacta taggagcgcg
+      961 ttcggcgagt tgccttccga caccctgcgt caatgcaaaa aggaagtggc ttgaagtcca
+     1021 gccttgcaag aagcggatac aggagtgcaa aaaatggcta tctctagtaa ggcctacccc
+     1081 ttaggcttta tgcaa
+//

@@ -1,0 +1,50 @@
+LOCUS       Inserto_ftalatos        1818 bp ds-DNA     linear       01-FEB-2026
+DEFINITION  .
+FEATURES             Location/Qualifiers
+     misc_feature    1..1095
+                     /label="Promotor ftalatos"
+                     /ApEinfo_revcolor="#ffef86"
+                     /ApEinfo_fwdcolor="#ffef86"
+     misc_feature    1096..1108
+                     /label="RBS Medio"
+     misc_feature    1109..1777
+                     /label="Proteina reportera"
+                     /ApEinfo_revcolor="#c7b0e3"
+                     /ApEinfo_fwdcolor="#c7b0e3"
+     misc_feature    1109..1777
+                     /label="Proteina reportera ftalatos"
+     misc_feature    1778..1818
+                     /label="Terminador MP&Ftalatos"
+ORIGIN
+        1 gtttgatccc cgtcaacggc atagtatatc ggcatagtat aatacgacat ggatttttgc
+       61 ttattgaacg agaaaagtca gatcttcgtc cacgccgagc cctatgcagt ctccgattat
+      121 gttaaccagt atgtcggtac gcactctatt cgcctgccca ggggcgggcg cccggcaggc
+      181 aggctgcacc acagaatctt cggatgcctc gatctgtgtc gaatcagcta cggcggtagc
+      241 gtgagggtaa tctcgcctgg attagagacg tgttatcatc tgcaaataat actcaaaggc
+      301 cattgcctgt ggcgtggcca tggccaggag cactattttg cgccgggcga actattgctg
+      361 ctcaatccgg atgaccaagc cgacctgacc tattcagaag attgcgagaa atttatcgtt
+      421 aaattgccct cagtggtcct tgatcgggcg tgcagtgaca acaattggca caagccgagg
+      481 gagggtatcc gtttcgccgc gcgacacaat ctccagcaac tcgatggctt tatcaatcta
+      541 ctcgggttag tttgtgacga agcggaacat acaaagtcga tgcctcgggt ccaagagcac
+      601 tatgcgggga tcatcgcttc caagctgctc gaaatgctgg gcagcaatgt cagccgtgaa
+      661 attttcagca aaggtaaccc gtctttcgag cgagtcgttc aattcattga ggagaatcag
+      721 aaacggaata tcagccttga gcggttagcg gagctggcga tgatgagtcc acgctcgctc
+      781 tacaatttgt tcgagaagca cgccggcacc acgccgaaga actacatccg caaccgcaag
+      841 ctcgaaagca tccgcgcctg cttgaacgat cccagtgcca atgtgcgtag tataactgag
+      901 atagccctag actacggctt cttacatttg ggacgcttcg ctgaaaacta taggagcgcg
+      961 ttcggcgagt tgccttccga caccctgcgt caatgcaaaa aggaagtggc ttgaagtcca
+     1021 gccttgcaag aagcggatac aggagtgcaa aaaatggcta tctctagtaa ggcctacccc
+     1081 ttaggcttta tgcaatcaca caggaaagat gagtgtgatc gctaaacaaa tgacctacaa
+     1141 ggtttatatg tcaggcacgg tcaatggaca ctactttgag gtcgaaggcg atggaaaagg
+     1201 taagccctac gagggggagc agacggtaaa gctcactgtc accaagggcg gacctctgcc
+     1261 atttgcttgg gatattttat caccacagtg tcagtacgga agcataccat tcaccaagta
+     1321 ccctgaagac atccctgact atgtaaagca gtcattcccg gagggctata catgggagag
+     1381 gatcatgaac tttgaagatg gtgcagtgtg tactgtcagc aatgattcca gcatccaagg
+     1441 caactgtttc atctaccatg tcaagttctc tggtttgaac tttcctccca atggacctgt
+     1501 catgcagaag aagacacagg gctgggaacc caacactgag cgtctctttg cacgagatgg
+     1561 aatgctgcta ggaaacaact ttatggctct gaagttagaa ggaggcggtc actatttgtg
+     1621 tgaatttaaa actacttaca aggcaaagaa gcctgtgaag atgccagggt atcactatgt
+     1681 tgaccgcaaa ctggatgtaa ccaatcacaa caaggattac acttcggttg agcagtgtga
+     1741 aatttccatt gcacgcaaac ctgtggtcgc ctaataatca cactggctca ccttcgggtg
+     1801 ggcctttctg cgtttata
+//

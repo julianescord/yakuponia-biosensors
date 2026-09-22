@@ -1,0 +1,10 @@
+LOCUS       Terminador_MP&Ftalatos    41 bp ds-DNA     linear       01-FEB-2026
+DEFINITION  .
+FEATURES             Location/Qualifiers
+     misc_feature    1..41
+                     /label="Terminador MP&Ftalatos"
+                     /ApEinfo_revcolor="#d6b295"
+                     /ApEinfo_fwdcolor="#d6b295"
+ORIGIN
+        1 tcacactggc tcaccttcgg gtgggccttt ctgcgtttat a
+//
