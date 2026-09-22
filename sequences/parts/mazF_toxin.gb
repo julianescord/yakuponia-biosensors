@@ -1,0 +1,15 @@
+LOCUS       MazF_toxin               339 bp ds-DNA     linear       01-FEB-2026
+DEFINITION  .
+FEATURES             Location/Qualifiers
+     misc_feature    1..339
+                     /label="MazF toxin"
+                     /ApEinfo_revcolor="#b7e6d7"
+                     /ApEinfo_fwdcolor="#b7e6d7"
+ORIGIN
+        1 atggtaagcc gatacgtacc cgatatgggc gatctgattt gggttgattt tgacccgaca
+       61 aaaggtagcg agcaagctgg acatcgtcca gctgttgtcc tgagtccttt catgtacaac
+      121 aacaaaacag gtatgtgtct gtgtgttcct tgtacaacgc aatcaaaagg atatccgttc
+      181 gaagttgttt tatccggtca ggaacgtgat ggcgtagcgt tagctgatca ggtaaaaagt
+      241 atcgcctggc gggcaagagg agcaacgaag aaaggaacag ttgccccaga ggaattacaa
+      301 ctcattaaag ccaaaattaa cgtactgatt gggtaataa
+//

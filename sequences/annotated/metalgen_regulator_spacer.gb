@@ -1,0 +1,21 @@
+LOCUS       MetalGen_spcr            324 bp    DNA     linear   SYN 22-SEP-2026
+DEFINITION  Yakuponia / metalgen_regulator_spacer. Reanotado desde export Benchling.
+ACCESSION   metalgen_regulator_spacer
+VERSION     metalgen_regulator_spacer
+KEYWORDS    .
+SOURCE      synthetic DNA construct
+  ORGANISM  synthetic DNA construct
+FEATURES             Location/Qualifiers
+     CDS             complement(1..324)
+                     /label="arsR-like regulator"
+                     /note="ArsR/SmtB-family metalloregulatory repressor, 107 aa,
+                     reverse strand; HTH motif TVSHQLRFL. Identificado por
+                     analisis de marcos de lectura, no anotado en Benchling"
+ORIGIN
+        1 tcaatcatgc tgtgtatgat ggatcatttg ctgaagaaca tctaaaacat gttcatcctc
+       61 cggagagtaa taaatcgatg ttccttctct gcgcgatttg acaagccgga gattttttaa
+      121 aaatctaagc tggtgggaca cagtggattg cagtaaattc agcttttctg caattccgtt
+      181 tactgcatgc tcaccttggg acaataaatg gagaattctg attcgggtag gatctgaaag
+      241 cgctttgaat gtttgcgcga ctagaaacag cgtctcctcg tccagatcag cagccgattg
+      301 ttccgtttct ctaaattcag tcat
+//

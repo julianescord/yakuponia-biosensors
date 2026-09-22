@@ -1,0 +1,10 @@
+LOCUS       J23100                    35 bp ds-DNA     linear       01-FEB-2026
+DEFINITION  .
+FEATURES             Location/Qualifiers
+     misc_feature    1..35
+                     /label="J23100"
+                     /ApEinfo_revcolor="#ffef86"
+                     /ApEinfo_fwdcolor="#ffef86"
+ORIGIN
+        1 ttgacggcta gctcagtcct aggtacagtg ctagc
+//

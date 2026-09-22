@@ -1,0 +1,14 @@
+LOCUS       MazE_antitoxin           252 bp ds-DNA     linear       01-FEB-2026
+DEFINITION  .
+FEATURES             Location/Qualifiers
+     misc_feature    1..252
+                     /label="MazF antitoxin"
+                     /ApEinfo_revcolor="#b1ff67"
+                     /ApEinfo_fwdcolor="#b1ff67"
+ORIGIN
+        1 atgatccaca gtagcgtaaa gcgttgggga aattcaccgg cggtgcggat cccggctacg
+       61 ttaatgcagg cgctcaatct gaatattgat gatgaagtga agattgacct ggtggatggc
+      121 aaattaatta ttgagccagt gcgtaaagag cccgtattta cgcttgctga actggtcaac
+      181 gacatcacgc cggaaaacct ccacgagaat atcgactggg gagagccgaa agataaggaa
+      241 gtctggtaat aa
+//

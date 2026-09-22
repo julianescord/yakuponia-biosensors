@@ -1,0 +1,36 @@
+LOCUS       FtaGen_sensor           1117 bp    DNA     circular SYN 22-SEP-2026
+DEFINITION  Yakuponia / ftagen_sensor_module_biobrick. Reanotado desde export Benchling.
+ACCESSION   ftagen_sensor_module_biobrick
+VERSION     ftagen_sensor_module_biobrick
+KEYWORDS    .
+SOURCE      synthetic DNA construct
+  ORGANISM  synthetic DNA construct
+FEATURES             Location/Qualifiers
+     misc_feature    1..22
+                     /label="BioBrick prefix RFC[10]"
+                     /note="EcoRI-NotI-XbaI standard assembly prefix"
+     regulatory      23..1117
+                     /label="P_pht + regulator"
+                     /note="phthalate-responsive regulatory region with cognate
+                     regulator CDS"
+ORIGIN
+        1 gaattcgcgg ccgcttctag aggtttgatc cccgtcaacg gcatagtata tcggcatagt
+       61 ataatacgac atggattttt gcttattgaa cgagaaaagt cagatcttcg tccacgccga
+      121 gccctatgca gtctccgatt atgttaacca gtatgtcggt acgcactcta ttcgcctgcc
+      181 caggggcggg cgcccggcag gcaggctgca ccacagaatc ttcggatgcc tcgatctgtg
+      241 tcgaatcagc tacggcggta gcgtgagggt aatctcgcct ggattagaga cgtgttatca
+      301 tctgcaaata atactcaaag gccattgcct gtggcgtggc catggccagg agcactattt
+      361 tgcgccgggc gaactattgc tgctcaatcc ggatgaccaa gccgacctga cctattcaga
+      421 agattgcgag aaatttatcg ttaaattgcc ctcagtggtc cttgatcggg cgtgcagtga
+      481 caacaattgg cacaagccga gggagggtat ccgtttcgcc gcgcgacaca atctccagca
+      541 actcgatggc tttatcaatc tactcgggtt agtttgtgac gaagcggaac atacaaagtc
+      601 gatgcctcgg gtccaagagc actatgcggg gatcatcgct tccaagctgc tcgaaatgct
+      661 gggcagcaat gtcagccgtg aaattttcag caaaggtaac ccgtctttcg agcgagtcgt
+      721 tcaattcatt gaggagaatc agaaacggaa tatcagcctt gagcggttag cggagctggc
+      781 gatgatgagt ccacgctcgc tctacaattt gttcgagaag cacgccggca ccacgccgaa
+      841 gaactacatc cgcaaccgca agctcgaaag catccgcgcc tgcttgaacg atcccagtgc
+      901 caatgtgcgt agtataactg agatagccct agactacggc ttcttacatt tgggacgctt
+      961 cgctgaaaac tataggagcg cgttcggcga gttgccttcc gacaccctgc gtcaatgcaa
+     1021 aaaggaagtg gcttgaagtc cagccttgca agaagcggat acaggagtgc aaaaaatggc
+     1081 tatctctagt aaggcctacc ccttaggctt tatgcaa
+//

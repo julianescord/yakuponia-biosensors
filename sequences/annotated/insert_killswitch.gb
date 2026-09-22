@@ -1,0 +1,51 @@
+LOCUS       ins_KillSw               944 bp    DNA     linear   SYN 22-SEP-2026
+DEFINITION  Yakuponia / insert_killswitch. Reanotado desde export Benchling.
+ACCESSION   insert_killswitch
+VERSION     insert_killswitch
+KEYWORDS    .
+SOURCE      synthetic DNA construct
+  ORGANISM  synthetic DNA construct
+FEATURES             Location/Qualifiers
+     promoter        1..35
+                     /label="J23117"
+                     /note="Anderson constitutive promoter, weak (iGEM BBa_J23117)"
+     RBS             36..48
+                     /label="RBS medium (BBa_B0032)"
+                     /note="ribosome binding site, medium strength"
+     CDS             49..387
+                     /label="mazF"
+                     /note="MazF endoribonuclease (toxin), E. coli MazEF type II TA
+                     system"
+     terminator      388..516
+                     /label="BBa_B0015"
+                     /note="double terminator rrnB T1 + T7TE"
+     promoter        517..551
+                     /label="J23100"
+                     /note="Anderson constitutive promoter, strong (iGEM BBa_J23100)"
+     RBS             552..563
+                     /label="RBS strong (BBa_B0034)"
+                     /note="ribosome binding site, strong"
+     CDS             564..815
+                     /label="mazE"
+                     /note="MazE antitoxin, E. coli MazEF type II TA system"
+     terminator      816..944
+                     /label="BBa_B0015"
+                     /note="double terminator rrnB T1 + T7TE"
+ORIGIN
+        1 ttgacagcta gctcagtcct agggattgtg ctagctcaca caggaaagat ggtaagccga
+       61 tacgtacccg atatgggcga tctgatttgg gttgattttg acccgacaaa aggtagcgag
+      121 caagctggac atcgtccagc tgttgtcctg agtcctttca tgtacaacaa caaaacaggt
+      181 atgtgtctgt gtgttccttg tacaacgcaa tcaaaaggat atccgttcga agttgtttta
+      241 tccggtcagg aacgtgatgg cgtagcgtta gctgatcagg taaaaagtat cgcctggcgg
+      301 gcaagaggag caacgaagaa aggaacagtt gccccagagg aattacaact cattaaagcc
+      361 aaaattaacg tactgattgg gtaataacca ggcatcaaat aaaacgaaag gctcagtcga
+      421 aagactgggc ctttcgtttt atctgttgtt tgtcggtgaa cgctctctac tagagtcaca
+      481 ctggctcacc ttcgggtggg cctttctgcg tttatattga cggctagctc agtcctaggt
+      541 acagtgctag caaagaggag aaaatgatcc acagtagcgt aaagcgttgg ggaaattcac
+      601 cggcggtgcg gatcccggct acgttaatgc aggcgctcaa tctgaatatt gatgatgaag
+      661 tgaagattga cctggtggat ggcaaattaa ttattgagcc agtgcgtaaa gagcccgtat
+      721 ttacgcttgc tgaactggtc aacgacatca cgccggaaaa cctccacgag aatatcgact
+      781 ggggagagcc gaaagataag gaagtctggt aataaccagg catcaaataa aacgaaaggc
+      841 tcagtcgaaa gactgggcct ttcgttttat ctgttgtttg tcggtgaacg ctctctacta
+      901 gagtcacact ggctcacctt cgggtgggcc tttctgcgtt tata
+//

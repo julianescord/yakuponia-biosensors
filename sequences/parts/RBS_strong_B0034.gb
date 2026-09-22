@@ -1,0 +1,10 @@
+LOCUS       RBS_Fuerte                12 bp ds-DNA     linear       01-FEB-2026
+DEFINITION  .
+FEATURES             Location/Qualifiers
+     misc_feature    1..12
+                     /label="RBS Fuerte"
+                     /ApEinfo_revcolor="#faac61"
+                     /ApEinfo_fwdcolor="#faac61"
+ORIGIN
+        1 aaagaggaga aa
+//
