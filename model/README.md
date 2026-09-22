@@ -20,14 +20,15 @@ solo no puede contestar.
 **No para lectura a simple vista, ni siquiera en la v2.** Ningún reportero
 cruza el umbral visual dentro de 30 min:
 
-| Constructo | A simple vista | Con instrumento |
+| Versión | A simple vista | Con instrumento |
 |---|---|---|
-| v1 FtaGen (GFP, RBS 0 nt) | **no alcanza** | 14 min |
-| v1 MetalGen (mCherry) | 58 min | 6 min |
-| **v2 (cromoproteína + espaciador)** | **41 min** | **5 min** |
+| v1 (GFP, sin espaciador, B0032) | **no alcanza** | 14 min |
+| v2 (eforRed, espaciador, B0032) | **no alcanza** | 10 min |
+| **v3 (eforRed, espaciador, RBS *B. subtilis*)** | **50 min** | **5 min** |
 
-La v2 restaura la función del sensor de ftalatos, que en v1 no llegaba nunca,
-y baja el tiempo de 58 a 41 min en MetalGen. Pero no rompe el piso.
+**La v2 seguía sin funcionar en *B. subtilis*.** Corrigió el espaciador pero
+conservó BBa_B0032, cuyo Shine-Dalgarno solo aparea 4 nt con el 16S de *B.
+subtilis*. Solo la v3 da señal visible — y aun así, por encima de los 30 min.
 
 ![tiempo hasta señal](figures/01_time_to_signal.png)
 
@@ -48,21 +49,32 @@ A los 30 min la respuesta ya es sigmoidea y discrimina dosis, pero se queda por
 debajo del umbral visual en todo el rango: **hay señal medible antes de que
 haya señal visible.**
 
-## 2. ¿Cuánto cuesta el defecto de espaciado RBS→ATG?
+## 2. El Shine-Dalgarno, no solo el espaciado
 
-Es peor que una simple demora. Por debajo del 20 % de eficiencia traduccional,
-el sensor **nunca** alcanza el umbral visual:
+El espaciado RBS→ATG era solo la mitad del problema. La otra mitad es que **los
+RBS del registro iGEM están caracterizados en *E. coli***, y el 16S de *B.
+subtilis* exige un SD más largo y contiguo.
 
-| Eficiencia de traducción | Tiempo hasta señal | |
+| RBS | Apareamiento SD | Eficiencia |
 |---|---|---|
-| **100 %** | **41 min** | v2, espaciador de 7 nt |
-| 50 % | 72 min | |
-| 20 % | no alcanza | |
-| 10 % | no alcanza | v1, espaciado 0 nt |
+| BBa_B0032 (v1, v2) | 4 nt (`AGGA`) | 15 % |
+| BBa_B0034 (v1, v2) | 5 nt (`AGGAG`) | 40 % |
+| Bsub medium (v3) | 6 nt (`AGGAGG`) | 75 % |
+| **Bsub strong (v3)** | **7 nt (`AGGAGGT`)** | **100 %** |
 
-La síntesis compite con la dilución por división celular. Por debajo de cierto
-umbral la proteína madura se estabiliza en una meseta bajo el nivel detectable,
-y esperar más no ayuda. El defecto no retrasa el sensor: **lo inutiliza**.
+| SD | Tiempo hasta señal |
+|---|---|
+| 4 nt | no alcanza |
+| 5 nt | 91 min |
+| 6 nt | 50 min |
+| 7 nt | 41 min |
+
+La síntesis compite con la dilución por división. Por debajo de cierto umbral
+la proteína madura se estabiliza en una meseta bajo el nivel detectable, y
+esperar más no ayuda: el defecto no retrasa el sensor, **lo inutiliza**.
+
+`scripts/validate_assembly.py` mide este apareamiento y falla por debajo de
+5 nt, así que el criterio queda verificado y no supuesto.
 
 ## 3. ¿El kill switch contiene la célula?
 
@@ -96,25 +108,27 @@ afinar.
 
 ### Consecuencia: el switch dispara solo
 
-| Escenario | v1 | v2 | Debería |
-|---|---|---|---|
-| Plásmido retenido | muere **95 min** ✗ | **sobrevive** ✓ | sobrevivir |
-| Plásmido perdido a 60 min | muere 67 min ✓ | muere **68 min** ✓ | morir |
+| Escenario | v1 | v2 | v3 | Debería |
+|---|---|---|---|---|
+| Plásmido retenido | muere 304 min ✗ | sobrevive ✓ | **sobrevive** ✓ | sobrevivir |
+| Plásmido perdido | **sobrevive** ✗ | **sobrevive** ✗ | **muere 74 min** ✓ | morir |
+
+**La v2 tampoco contenía.** Con SD de 4–5 nt la toxina nunca alcanza
+concentración letal, así que la célula sobrevive al escape. La contención
+parecía resuelta solo porque el modelo anterior asumía traducción plena — un
+supuesto que el chasis no cumple.
 
 ![kill switch](figures/03_killswitch.png)
 
-En v1 el margen entre ambos escenarios era de 28 min: la célula moría tuviera o
-no el plásmido. **La v2 discrimina correctamente.**
+**Solo la v3 discrimina correctamente.**
 
-### Los márgenes de la v2 son estrechos
+### Los márgenes de la v3 son estrechos
 
 Conviene declararlo en vez de presentar la corrección como resuelta:
 
-- En reposo, MazF libre se estabiliza en **35 nM contra un umbral de 50 nM**:
-  quedan solo 15 nM de margen ante variación de parámetros.
-- Tras perder el plásmido, la toxina supera el umbral entre los 68 y los 86
-  min: una **ventana letal de 18 min**. Si la muerte no ocurre dentro de ella,
-  la célula se recupera.
+- En reposo, MazF libre se estabiliza en **26 nM contra un umbral de 50 nM**.
+- Tras perder el plásmido, la **ventana letal es de solo 10 min**. Si la muerte
+  no ocurre dentro de ella, la célula se recupera.
 
 Ambos márgenes dependen de parámetros no medidos. Una corrección más robusta
 sería **hacer la toxina condicional** en vez de constitutiva: que MazF solo se

@@ -1,7 +1,7 @@
-LOCUS       ins_MetalGn_v2          3213 bp    DNA     linear   SYN 22-SEP-2026
-DEFINITION  Yakuponia / insert_metalgen_v2. Correcciones: cromoproteinas, espaciadores RBS y tag ssrA.
-ACCESSION   insert_metalgen_v2
-VERSION     insert_metalgen_v2
+LOCUS       ins_MetalGn_v3          3211 bp    DNA     linear   SYN 22-SEP-2026
+DEFINITION  Yakuponia / insert_metalgen_v3. Correcciones: cromoproteinas, espaciadores RBS y tag ssrA, mas RBS optimizado para B. subtilis.
+ACCESSION   insert_metalgen_v3
+VERSION     insert_metalgen_v3
 KEYWORDS    .
 SOURCE      synthetic DNA construct
   ORGANISM  synthetic DNA construct
@@ -10,24 +10,26 @@ FEATURES             Location/Qualifiers
                      /label="P_mer + regulator"
                      /note="heavy-metal-responsive regulatory region with cognate
                      regulator CDS"
-     RBS             2110..2121
-                     /label="RBS strong (BBa_B0034)"
-                     /note="ribosome binding site for the arsR-like regulator"
-     CDS             complement(2122..2445)
+     RBS             2110..2120
+                     /label="RBS strong (B. subtilis)"
+                     /note="SD AAAGGAGGTG, 7 nt de apareamiento; BBa_B0034 solo
+                     apareaba 5 nt"
+     CDS             complement(2121..2444)
                      /label="arsR-like regulator"
                      /note="ArsR/SmtB-family metalloregulatory repressor, 107 aa,
                      reverse strand; HTH motif TVSHQLRFL"
-     RBS             2446..2457
-                     /label="RBS strong (BBa_B0034)"
-                     /note="ribosome binding site for the reporter; absent in v1"
-     misc_feature    2458..2464
+     RBS             2445..2455
+                     /label="RBS strong (B. subtilis)"
+                     /note="SD AAAGGAGGTG, 7 nt de apareamiento; BBa_B0034 solo
+                     apareaba 5 nt"
+     misc_feature    2456..2462
                      /label="spacer 7 nt"
                      /note="functional RBS-ATG distance for the reporter"
-     CDS             2465..3172
+     CDS             2463..3170
                      /label="amilCP"
                      /note="blue-violet chromoprotein (BBa_K592009); replaces mCherry,
                      visible without excitation"
-     terminator      3173..3213
+     terminator      3171..3211
                      /label="BBa_B1002"
                      /note="rrnB-like transcriptional terminator"
 ORIGIN
@@ -66,23 +68,23 @@ ORIGIN
      1921 ttttttctct actttattcg tgacccattg ctcttctttc ccatcggctg agacagttaa
      1981 ggtgcttgcc gcaaaattta ccgcgcatcc gttaatgcct tttatgcctt tgactccatt
      2041 ttcgattttt cgggcacaat tgctgcaatc caaaccgtcc agaacatatt cctgtttcac
-     2101 tagtctcaca aagaggagaa atcaatcatg ctgtgtatga tggatcattt gctgaagaac
-     2161 atctaaaaca tgttcatcct ccggagagta ataaatcgat gttccttctc tgcgcgattt
-     2221 gacaagccgg agatttttta aaaatctaag ctggtgggac acagtggatt gcagtaaatt
-     2281 cagcttttct gcaattccgt ttactgcatg ctcaccttgg gacaataaat ggagaattct
-     2341 gattcgggta ggatctgaaa gcgctttgaa tgtttgcgcg actagaaaca gcgtctcctc
-     2401 gtccagatca gcagccgatt gttccgtttc tctaaattca gtcataaaga ggagaaaaat
-     2461 taagatgagc gtgattgcaa aacagatgac ctataaagtt tatatgagcg gcaccgtgaa
-     2521 tggtcattat tttgaagttg aaggtgatgg taaaggtcgt ccgtatgaag gtcatcagga
-     2581 aatgaccctg cgtgttacca tggcaaaagg tggtccgatg ccgtttgcat ttgatattgt
-     2641 tagcattgca ttttgctatg gtaatcgtgt ttttgcaaaa tatccgaaag aaattccgga
-     2701 ttattttaaa cagagctttc cggaaggtta tagctgggaa cgtaccatga tttttgaaga
-     2761 tggtggtgtt ctgaccgcac atcaggatac cagcctggaa ggtaattgtc tgatttataa
-     2821 agtgaaagtt ctgggtacca attttccggc aaatggtccg gttatgcaga aaaaaaccct
-     2881 gggttgggaa gcaaataccg aaatgctgta tccggcagat ggtggtctgg aaggtcgtag
-     2941 cgatatggca ctgaaactgg ttggtggtgg tcatctgatt tgtaatttta aaaccaccta
-     3001 tcgtagcaaa aaaccggcaa aaaatctgaa aatgccgggt gtttattatg tggatcatcg
-     3061 tctggaacgt attaaagaag caaatgatga aacctatgtt gaacagcatg aagtggcagt
-     3121 tgcacgttat tgtgatctgc cgagcaaact gggtcataaa ctgaattaat aatcacactg
-     3181 gctcaccttc gggtgggcct ttctgcgttt ata
+     2101 tagtctcaca aaggaggtga tcaatcatgc tgtgtatgat ggatcatttg ctgaagaaca
+     2161 tctaaaacat gttcatcctc cggagagtaa taaatcgatg ttccttctct gcgcgatttg
+     2221 acaagccgga gattttttaa aaatctaagc tggtgggaca cagtggattg cagtaaattc
+     2281 agcttttctg caattccgtt tactgcatgc tcaccttggg acaataaatg gagaattctg
+     2341 attcgggtag gatctgaaag cgctttgaat gtttgcgcga ctagaaacag cgtctcctcg
+     2401 tccagatcag cagccgattg ttccgtttct ctaaattcag tcataaagga ggtgaaatta
+     2461 agatgagcgt gattgcaaaa cagatgacct ataaagttta tatgagcggc accgtgaatg
+     2521 gtcattattt tgaagttgaa ggtgatggta aaggtcgtcc gtatgaaggt catcaggaaa
+     2581 tgaccctgcg tgttaccatg gcaaaaggtg gtccgatgcc gtttgcattt gatattgtta
+     2641 gcattgcatt ttgctatggt aatcgtgttt ttgcaaaata tccgaaagaa attccggatt
+     2701 attttaaaca gagctttccg gaaggttata gctgggaacg taccatgatt tttgaagatg
+     2761 gtggtgttct gaccgcacat caggatacca gcctggaagg taattgtctg atttataaag
+     2821 tgaaagttct gggtaccaat tttccggcaa atggtccggt tatgcagaaa aaaaccctgg
+     2881 gttgggaagc aaataccgaa atgctgtatc cggcagatgg tggtctggaa ggtcgtagcg
+     2941 atatggcact gaaactggtt ggtggtggtc atctgatttg taattttaaa accacctatc
+     3001 gtagcaaaaa accggcaaaa aatctgaaaa tgccgggtgt ttattatgtg gatcatcgtc
+     3061 tggaacgtat taaagaagca aatgatgaaa cctatgttga acagcatgaa gtggcagttg
+     3121 cacgttattg tgatctgccg agcaaactgg gtcataaact gaattaataa tcacactggc
+     3181 tcaccttcgg gtgggccttt ctgcgtttat a
 //

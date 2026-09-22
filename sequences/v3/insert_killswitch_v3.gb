@@ -1,0 +1,60 @@
+LOCUS       ins_KillSw_v3            985 bp    DNA     linear   SYN 22-SEP-2026
+DEFINITION  Yakuponia / insert_killswitch_v3. Correcciones: cromoproteinas, espaciadores RBS y tag ssrA, mas RBS optimizado para B. subtilis.
+ACCESSION   insert_killswitch_v3
+VERSION     insert_killswitch_v3
+KEYWORDS    .
+SOURCE      synthetic DNA construct
+  ORGANISM  synthetic DNA construct
+FEATURES             Location/Qualifiers
+     promoter        1..35
+                     /label="J23117"
+                     /note="Anderson constitutive promoter, weak (iGEM BBa_J23117)"
+     RBS             36..46
+                     /label="RBS medium (B. subtilis)"
+                     /note="SD AAAGGAGG, 6 nt de apareamiento con el 16S de B.
+                     subtilis; BBa_B0032 solo apareaba 4 nt"
+     misc_feature    47..53
+                     /label="spacer 7 nt"
+                     /note="restores functional RBS-ATG distance; was 0 nt in v1"
+     CDS             54..422
+                     /label="mazF-ssrA"
+                     /note="MazF endoribonuclease with C-terminal AANDENYALAA
+                     degradation tag; destabilised to raise the viability bound"
+     terminator      423..551
+                     /label="BBa_B0015"
+                     /note="double terminator rrnB T1 + T7TE"
+     promoter        552..586
+                     /label="J23100"
+                     /note="Anderson constitutive promoter, strong (iGEM BBa_J23100)"
+     RBS             587..597
+                     /label="RBS strong (B. subtilis)"
+                     /note="SD AAAGGAGGTG, 7 nt de apareamiento; BBa_B0034 solo
+                     apareaba 5 nt"
+     misc_feature    598..604
+                     /label="spacer 7 nt"
+                     /note="restores functional RBS-ATG distance; was 0 nt in v1"
+     CDS             605..856
+                     /label="mazE"
+                     /note="MazE antitoxin, E. coli MazEF type II TA system"
+     terminator      857..985
+                     /label="BBa_B0015"
+                     /note="double terminator rrnB T1 + T7TE"
+ORIGIN
+        1 ttgacagcta gctcagtcct agggattgtg ctagcaaagg aggaaaaatt aagatggtaa
+       61 gccgatacgt acccgatatg ggcgatctga tttgggttga ttttgacccg acaaaaggta
+      121 gcgagcaagc tggacatcgt ccagctgttg tcctgagtcc tttcatgtac aacaacaaaa
+      181 caggtatgtg tctgtgtgtt ccttgtacaa cgcaatcaaa aggatatccg ttcgaagttg
+      241 ttttatccgg tcaggaacgt gatggcgtag cgttagctga tcaggtaaaa agtatcgcct
+      301 ggcgggcaag aggagcaacg aagaaaggaa cagttgcccc agaggaatta caactcatta
+      361 aagccaaaat taacgtactg attggggcag caaacgacga aaactacgct ctggcagcct
+      421 aaccaggcat caaataaaac gaaaggctca gtcgaaagac tgggcctttc gttttatctg
+      481 ttgtttgtcg gtgaacgctc tctactagag tcacactggc tcaccttcgg gtgggccttt
+      541 ctgcgtttat attgacggct agctcagtcc taggtacagt gctagcaaag gaggtgaaat
+      601 taagatgatc cacagtagcg taaagcgttg gggaaattca ccggcggtgc ggatcccggc
+      661 tacgttaatg caggcgctca atctgaatat tgatgatgaa gtgaagattg acctggtgga
+      721 tggcaaatta attattgagc cagtgcgtaa agagcccgta tttacgcttg ctgaactggt
+      781 caacgacatc acgccggaaa acctccacga gaatatcgac tggggagagc cgaaagataa
+      841 ggaagtctgg taataaccag gcatcaaata aaacgaaagg ctcagtcgaa agactgggcc
+      901 tttcgtttta tctgttgttt gtcggtgaac gctctctact agagtcacac tggctcacct
+      961 tcgggtgggc ctttctgcgt ttata
+//

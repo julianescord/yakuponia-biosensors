@@ -1,5 +1,5 @@
 LOCUS       ins_KillSw_v2            988 bp    DNA     linear   SYN 22-SEP-2026
-DEFINITION  Yakuponia / insert_killswitch_v2. Version corregida: cromoproteinas, espaciadores RBS y tag ssrA.
+DEFINITION  Yakuponia / insert_killswitch_v2. Correcciones: cromoproteinas, espaciadores RBS y tag ssrA.
 ACCESSION   insert_killswitch_v2
 VERSION     insert_killswitch_v2
 KEYWORDS    .
