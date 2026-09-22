@@ -40,6 +40,9 @@ Tres constructos, dos chasis de *Bacillus subtilis*:
 
 Los tres comparten la misma lógica: `promotor inducible → RBS → reportera → terminador`.
 
+El comportamiento dinámico de los tres está modelado en [model/](model/), que
+es donde aparecen los defectos que la secuencia por sí sola no revela.
+
 ### FtaGen — sensor de ftalatos
 
 ```
@@ -153,6 +156,12 @@ producen pigmento visible sin excitación:
 El diseño es modular, así que el cambio es un reemplazo de una sola parte: solo
 cambia el CDS reportero, el resto del casete queda igual.
 
+**Pero el modelo cinético muestra que no basta.** La cromoproteína es la más
+rápida de las tres (41 min frente a 48 de GFP y 58 de mCherry), pero **ninguna
+cruza el umbral visual en 30 min**: la maduración del cromóforo impone un piso
+que no se evita optimizando promotor ni RBS. Hay que ajustar la afirmación a
+~45 min, o declarar que los 30 min requieren lector. Ver [model/](model/).
+
 ### 2. Espaciado RBS→ATG de 0 nt — *bloqueante*
 
 En FtaGen y en ambas unidades del kill switch, el codón de inicio está pegado
@@ -171,14 +180,40 @@ podría invertirse.
 
 **Corrección:** insertar espaciador de 6–8 nt en las tres uniones.
 
-### 3. Estándares de ensamblaje mezclados
+El modelo cuantifica el costo: por debajo del 20 % de eficiencia traduccional
+el sensor **nunca** alcanza el umbral visual, porque la síntesis no supera a la
+dilución por división. No es una demora, es una pérdida de función.
+
+### 3. El kill switch dispara solo — *bloqueante*
+
+Hallazgo del modelo cinético, no visible en la secuencia.
+
+Secuestrar MazF en el complejo **no la elimina**: ClpAP degrada la MazE del
+complejo y libera la MazF intacta, que es estable (t½ ≈ 90 min contra 10 min de
+MazE). El único sumidero real de toxina es su propia degradación, lo que impone
+una cota dura sobre su síntesis:
+
+```
+k_mazF  <  d_mazF · F_letal
+ 0.1    <    0.0064            ← el diseño está 16x por encima
+```
+
+Consecuencia: la célula muere a los 95 min **aunque conserve el plásmido**,
+contra 67 min si lo pierde. El margen de 28 min no permite discriminar — un
+kill switch que mata al huésped que debía preservar no es contención.
+
+**Aumentar la antitoxina no lo arregla**, solo retrasa el disparo. Las opciones
+son bajar `k_mazF` ~16x, desestabilizar MazF con un tag ssrA, o hacer la toxina
+condicional en vez de constitutiva. Detalle en [model/](model/).
+
+### 4. Estándares de ensamblaje mezclados
 
 Hay un prefijo **BioBrick RFC[10]** que no aparece en ningún constructo
 (verificado), sitios **BsaI** (Golden Gate/MoClo) y sitios EcoRI/XbaI/SpeI/PstI
 internos. BioBrick y Golden Gate son estándares incompatibles; hay que elegir
 uno y domesticar el resto de la secuencia en consecuencia.
 
-### 4. Partes de *E. coli* en chasis de *B. subtilis*
+### 5. Partes de *E. coli* en chasis de *B. subtilis*
 
 pHT01 y pWB980 son vectores de *B. subtilis*, pero los promotores Anderson, los
 RBS B0032/B0034 y MazEF están caracterizados en *E. coli*. Los Anderson son
@@ -186,16 +221,18 @@ RBS B0032/B0034 y MazEF están caracterizados en *E. coli*. Los Anderson son
 — y el kill switch depende justamente de esas fuerzas relativas. Los RBS son
 subóptimos: *B. subtilis* exige Shine-Dalgarno más largo y complementario.
 
-### 5. Tamaño de los plásmidos
+### 6. Tamaño de los plásmidos
 
 9,5 kb y 10,9 kb son grandes para *B. subtilis*: baja eficiencia de
 transformación y carga metabólica que reduce la señal del reportero.
 
-### 6. Sin validación experimental
+### 7. Sin validación experimental
 
-No hay curva dosis-respuesta, ni límite de detección, ni tiempo real hasta
-señal. La afirmación de **"resultados en menos de 30 minutos"** que acompañó la
-presentación del proyecto **no está respaldada** por ningún dato ni modelo.
+No hay datos propios: ni curva dosis-respuesta medida, ni límite de detección,
+ni tiempo real hasta señal. El modelo cinético de [model/](model/) da órdenes
+de magnitud a partir de parámetros de literatura, pero **no sustituye la
+validación húmeda** — sus parámetros no han sido ajustados contra mediciones de
+estos constructos.
 
 ---
 
@@ -210,6 +247,10 @@ sequences/
 scripts/
   reannotate.py         reconstruye la anotación desde las partes
   validate_assembly.py  valida el ensamblaje y reporta defectos
+model/
+  kinetics.py           ODEs de los sensores y del kill switch
+  run_analysis.py       corre el análisis y escribe las figuras
+  figures/              salida, regenerable
 docs/
   maps/        mapas circulares de cada constructo (Benchling)
   synbio6-bootcamp-presentation.pdf
@@ -225,7 +266,8 @@ regenerarlo:
 ```bash
 python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 python3 scripts/reannotate.py                    # reconstruye la anotación
-.venv/bin/python scripts/validate_assembly.py    # valida
+.venv/bin/python scripts/validate_assembly.py    # valida el ensamblaje
+.venv/bin/python model/run_analysis.py           # análisis cinético
 ```
 
 El validador sale con código 1 mientras queden defectos abiertos — los 8 que
@@ -246,10 +288,13 @@ ArsR/SmtB no anotado.
 
 - [ ] Sustituir GFP/mCherry por eforRed/amilCP (limitación 1)
 - [ ] Insertar espaciadores RBS→ATG de 6–8 nt (limitación 2)
-- [ ] Elegir un único estándar de ensamblaje y domesticar sitios (limitación 3)
-- [ ] Recalibrar el ratio toxina:antitoxina para σA de *B. subtilis* (limitación 4)
-- [ ] Modelo cinético (ODEs) del circuito: dosis-respuesta y tiempo hasta señal
+- [ ] Elegir un único estándar de ensamblaje y domesticar sitios (limitación 4)
+- [ ] Recalibrar el ratio toxina:antitoxina para σA de *B. subtilis* (limitación 5)
+- [x] Modelo cinético (ODEs): dosis-respuesta y tiempo hasta señal
+- [ ] Rediseñar el kill switch para respetar la cota de viabilidad (limitación 3)
+- [ ] Ajustar la afirmación de tiempo de respuesta a ~45 min, o declarar lector
 - [ ] Protocolo de validación húmeda: cepas, concentraciones, controles
+- [ ] Análisis de sensibilidad global sobre los parámetros del modelo
 
 ---
 
