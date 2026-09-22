@@ -36,73 +36,95 @@ def section(title: str) -> None:
 
 
 def q1_time_to_signal() -> list[tuple]:
-    """Tiempo hasta senal para cada combinacion reportero x lectura."""
+    """Tiempo hasta senal: v1 frente a v2."""
     section("1. Tiempo hasta senal detectable")
+    print("  v1 = GFP/mCherry con espaciado RBS 0 nt (eff. traduccional ~10%)")
+    print("  v2 = cromoproteina con espaciador de 7 nt")
+    print()
     rows = []
-    for rep in ("gfp", "mcherry", "chromoprotein"):
+    for label, rep, eff in (("v1 FtaGen (GFP)", "gfp", 0.1),
+                            ("v1 MetalGen (mCherry)", "mcherry", 1.0),
+                            ("v2 ambos (cromoproteina)", "chromoprotein", 1.0)):
         for readout in ("visual", "instrument"):
-            cfg = SensorConfig(reporter=rep, readout=readout, inducer=10.0)
-            t = kn.time_to_signal(cfg)
-            ok = t is not None and t <= CLAIM_MIN
-            rows.append((rep, readout, t, ok))
-            print(f"  {rep:<14} {readout:<11} {fmt(t):>12}"
+            cfg = SensorConfig(reporter=rep, readout=readout,
+                               rbs_efficiency=eff, inducer=10.0)
+            tt = kn.time_to_signal(cfg)
+            ok = tt is not None and tt <= CLAIM_MIN
+            rows.append((label, readout, tt, ok))
+            print(f"  {label:<26} {readout:<11} {fmt(tt):>12}"
                   f"   {'cumple <30 min' if ok else ''}")
     return rows
 
 
 def q2_rbs_defect() -> None:
-    """Impacto del espaciado RBS->ATG de 0 nt sobre el tiempo de respuesta."""
-    section("2. Efecto del defecto de espaciado RBS->ATG")
-    print("  eficiencia de traduccion -> tiempo hasta senal (cromoproteina, visual)")
+    """Por que el espaciador era imprescindible."""
+    section("2. Efecto del espaciado RBS->ATG")
+    print("  eficiencia de traduccion -> tiempo hasta senal (cromoproteina)")
     for eff in (1.0, 0.5, 0.2, 0.1, 0.05):
         cfg = SensorConfig(reporter="chromoprotein", readout="visual",
                            rbs_efficiency=eff, inducer=10.0)
-        t = kn.time_to_signal(cfg)
-        note = "  <- espaciado 0 nt cae en este rango" if eff <= 0.1 else ""
-        print(f"    {eff:>5.0%}  {fmt(t):>12}{note}")
+        note = ""
+        if eff == 1.0:
+            note = "  <- v2, espaciador de 7 nt"
+        elif eff <= 0.1:
+            note = "  <- v1, espaciado 0 nt"
+        print(f"    {eff:>5.0%}  {fmt(kn.time_to_signal(cfg)):>12}{note}")
+    print()
+    print("  Por debajo del 20% la sintesis no supera a la dilucion por")
+    print("  division: el sensor no llega nunca, no solo tarda mas.")
 
 
 def q3_killswitch() -> None:
-    """Contencion: viabilidad, disparo tras perdida de plasmido, y defecto RBS."""
+    """Contencion: v1 frente a v2 con tag ssrA."""
     section("3. Kill switch MazEF")
 
-    k_max = kn.max_toxin_synthesis()
     print("  condicion de viabilidad:  k_mazF < d_mazF * umbral_letal")
-    print(f"    k_mazF admisible  {k_max:.5f} nM/s")
-    print(f"    k_mazF del diseno {kn.p('k_mazF'):.5f} nM/s"
-          f"   ({kn.p('k_mazF') / k_max:.0f}x por encima)")
-    print(f"    -> diseno viable: {kn.is_viable()}")
+    print(f"  k_mazF del diseno: {kn.p('k_mazF'):.4f} nM/s (igual en v1 y v2)")
+    print()
+    for ssrA in (False, True):
+        tag = "v2 (MazF-ssrA)" if ssrA else "v1 (MazF sin tag)"
+        cota = kn.max_toxin_synthesis(ssrA)
+        rel = kn.p("k_mazF") / cota
+        print(f"  {tag:<18} cota {cota:.4f} nM/s   "
+              f"k_mazF esta {rel:.1f}x {'por encima' if rel > 1 else 'por debajo'}"
+              f"   viable={kn.is_viable(ssrA)}")
 
     print()
-    t_arr, y = kn.simulate_killswitch(KillSwitchConfig())
-    e, f, c = y[0, -1], y[1, -1], y[2, -1]
-    surv = kn.time_to_death(KillSwitchConfig())
-    print("  con el plasmido retenido (deberia sobrevivir):")
-    print(f"    MazE {e:7.1f} nM   MazF libre {f:7.1f} nM   complejo {c:7.1f} nM")
-    print(f"    {'sobrevive' if surv is None else f'MUERE a los {surv:.0f} min'}"
-          f"{'' if surv is None else '   <- el switch dispara solo'}")
+    print("  comportamiento:")
+    print(f"    {'':22}{'plasmido retenido':<22}{'plasmido perdido a 60 min'}")
+    print(f"    {'':22}{'(debe sobrevivir)':<22}{'(debe morir)'}")
+    for ssrA in (False, True):
+        tag = "v2 (MazF-ssrA)" if ssrA else "v1 (sin tag)"
+        keep = kn.time_to_death(KillSwitchConfig(ssrA=ssrA))
+        lost = kn.time_to_death(
+            KillSwitchConfig(ssrA=ssrA, plasmid_lost_at=3600.0))
+        k_s = "sobrevive" if keep is None else f"MUERE {keep:.0f} min"
+        l_s = "sobrevive" if lost is None else f"muere {lost:.0f} min"
+        ok = keep is None and lost is not None
+        print(f"    {tag:<22}{k_s:<22}{l_s:<18}{'  <- correcto' if ok else ''}")
 
     print()
-    d = kn.time_to_death(KillSwitchConfig(plasmid_lost_at=3600.0))
-    print("  tras perder el plasmido a los 60 min (deberia morir):")
-    print(f"    {fmt(d)} hasta MazF letal")
+    print("  El tag ssrA sube la cota 22x sin tocar promotores ni RBS:")
+    print("  desestabilizar la toxina es lo que restaura la contencion.")
 
+    # El margen de la v2 es estrecho y conviene declararlo.
+    import numpy as np
+    keep_ss = kn.simulate_killswitch(KillSwitchConfig(ssrA=True))[1][1, -1]
+    thr = kn.p("tox_lethal")
+    t_a, y = kn.simulate_killswitch(
+        KillSwitchConfig(ssrA=True, plasmid_lost_at=3600.0), t_end=21600.0)
+    hot = np.flatnonzero(y[1] >= thr)
     print()
-    print("  margen entre ambos escenarios:")
-    if surv is not None and d is not None:
-        print(f"    muerte espuria {surv:.0f} min vs muerte real {d:.0f} min")
-        print("    el margen es demasiado estrecho para discriminar:")
-        print("    la celula muere tenga o no el plasmido.")
-
-    print()
-    print("  efecto del defecto de RBS sobre la antitoxina:")
-    for eff in (1.0, 0.5, 0.2, 0.1):
-        cfg = KillSwitchConfig(rbs_mazE=eff, rbs_mazF=1.0)
-        dd = kn.time_to_death(cfg)
-        print(f"    RBS mazE {eff:>5.0%}   "
-              f"{'sobrevive' if dd is None else f'muere a los {dd:>3.0f} min'}")
-    print("    el defecto acelera la muerte espuria: menos antitoxina,")
-    print("    menos retraso antes de que la toxina acumulada sea letal.")
+    print("  margenes de la v2 (estrechos, conviene declararlos):")
+    print(f"    en reposo MazF libre se estabiliza en {keep_ss:.0f} nM,"
+          f" umbral {thr:.0f} nM")
+    print(f"    -> margen de solo {thr - keep_ss:.0f} nM ante variacion de "
+          "parametros")
+    if hot.size:
+        print(f"    tras perder el plasmido la toxina supera el umbral entre "
+              f"{t_a[hot[0]] / 60:.0f} y {t_a[hot[-1]] / 60:.0f} min")
+        print(f"    -> ventana letal de {(t_a[hot[-1]] - t_a[hot[0]]) / 60:.0f}"
+              " min: la muerte debe ocurrir dentro de ella")
 
 
 def make_figures() -> None:
@@ -115,33 +137,36 @@ def make_figures() -> None:
     plt.rcParams.update({"font.size": 9, "figure.dpi": 150,
                          "axes.spines.top": False, "axes.spines.right": False})
 
-    # --- fig 1: curso temporal por reportero ---
-    # Escala lineal: en log las tres curvas se solapan y el rango vacio
-    # de 20 decadas oculta justamente la diferencia que importa.
+    # --- fig 1: v1 frente a v2 ---
     fig, ax = plt.subplots(figsize=(6.5, 4))
-    styles = {"gfp": ("GFP (fluorescente)", "#2a9d3f"),
-              "mcherry": ("mCherry (fluorescente)", "#c0392b"),
-              "chromoprotein": ("cromoproteina", "#7d3c98")}
-    for rep, (label, color) in styles.items():
-        cfg = SensorConfig(reporter=rep, readout="visual", inducer=10.0)
+    cases = [
+        ("v1 FtaGen: GFP, RBS 0 nt", "gfp", 0.1, "#2a9d3f", ":"),
+        ("v1 MetalGen: mCherry", "mcherry", 1.0, "#c0392b", ":"),
+        ("v2: cromoproteina + espaciador", "chromoprotein", 1.0, "#7d3c98", "-"),
+    ]
+    for label, rep, eff, color, ls in cases:
+        cfg = SensorConfig(reporter=rep, readout="visual",
+                           rbs_efficiency=eff, inducer=10.0)
         t_a, y = kn.simulate_sensor(cfg, t_end=7200.0)
         tt = kn.time_to_signal(cfg)
-        ax.plot(t_a / 60.0, y[2], label=f"{label} — {tt:.0f} min",
-                color=color, lw=1.8)
-        ax.plot([tt], [kn.p("thr_visual")], "o", color=color, ms=5, zorder=5)
+        suffix = f"{tt:.0f} min" if tt else "no alcanza"
+        ax.plot(t_a / 60.0, y[2], label=f"{label} — {suffix}",
+                color=color, lw=2.0 if ls == "-" else 1.6, ls=ls)
+        if tt:
+            ax.plot([tt], [kn.p("thr_visual")], "o", color=color, ms=5, zorder=5)
 
     ax.axhline(kn.p("thr_visual"), ls="--", c="k", lw=1,
                label="umbral visible a simple vista")
     ax.axvspan(0, CLAIM_MIN, color="#e67e22", alpha=0.10)
     ax.axvline(CLAIM_MIN, c="#e67e22", lw=1.2)
-    ax.text(CLAIM_MIN - 1.5, kn.p("thr_visual") * 1.42,
+    ax.text(CLAIM_MIN - 1.5, kn.p("thr_visual") * 1.45,
             "30 min\n(afirmado)", color="#e67e22", fontsize=8, ha="right")
     ax.set_xlabel("tiempo (min)")
     ax.set_ylabel("reportero maduro (nM)")
-    ax.set_title("Ningun reportero cruza el umbral visual en 30 min")
+    ax.set_title("v2 restaura la funcion, pero el piso de maduracion persiste")
     ax.set_xlim(0, 120)
     ax.set_ylim(0, kn.p("thr_visual") * 1.9)
-    ax.legend(fontsize=7.5, loc="lower right")
+    ax.legend(fontsize=7, loc="lower right")
     fig.tight_layout()
     fig.savefig(FIG_DIR / "01_time_to_signal.png")
     plt.close(fig)
@@ -149,6 +174,9 @@ def make_figures() -> None:
     # --- fig 2: dosis-respuesta a 30 min ---
     fig, ax = plt.subplots(figsize=(6.5, 4))
     doses = np.logspace(-2, 2, 60)
+    styles = {"gfp": ("GFP (v1)", "#2a9d3f"),
+              "mcherry": ("mCherry (v1)", "#c0392b"),
+              "chromoprotein": ("cromoproteina (v2)", "#7d3c98")}
     for rep, (label, color) in styles.items():
         r = kn.dose_response(doses, SensorConfig(reporter=rep), t_read=1800.0)
         ax.plot(doses, r, label=label, color=color, lw=1.8)
@@ -165,37 +193,49 @@ def make_figures() -> None:
     fig.savefig(FIG_DIR / "02_dose_response.png")
     plt.close(fig)
 
-    # --- fig 3: kill switch ---
-    fig, (a1, a2) = plt.subplots(1, 2, figsize=(9, 3.6))
-
-    for ax, lost, title in (
-        (a1, None, "Plasmido retenido\n(deberia sobrevivir)"),
-        (a2, 3600.0, "Plasmido perdido a 60 min\n(deberia morir)"),
-    ):
-        t_a, y = kn.simulate_killswitch(
-            KillSwitchConfig(plasmid_lost_at=lost), t_end=14400.0)
-        ax.plot(t_a / 60.0, y[0], label="MazE libre", color="#2471a3", lw=1.8)
-        ax.plot(t_a / 60.0, y[1], label="MazF libre", color="#c0392b", lw=1.8)
-        ax.axhline(kn.p("tox_lethal"), ls="--", c="k", lw=1, label="umbral letal")
-        if lost:
-            ax.axvline(60, c="#e67e22", lw=1.2)
-        ax.set_title(title, fontsize=9)
-        ax.set_xlabel("tiempo (min)")
-        ax.set_yscale("log")
-        ax.set_ylim(1e-2, 1e4)
-        ax.legend(fontsize=7)
-    a1.set_ylabel("concentracion (nM)")
-
-    fig.suptitle("La toxina supera el umbral letal en AMBOS casos: "
-                 "el switch no discrimina", fontsize=10)
+    # --- fig 3: kill switch v1 vs v2 ---
+    fig, axes = plt.subplots(2, 2, figsize=(9, 6), sharex=True)
+    for row, ssrA in enumerate((False, True)):
+        ver = "v2 (MazF-ssrA)" if ssrA else "v1 (MazF sin tag)"
+        for col, lost in enumerate((None, 3600.0)):
+            ax = axes[row, col]
+            t_a, y = kn.simulate_killswitch(
+                KillSwitchConfig(ssrA=ssrA, plasmid_lost_at=lost),
+                t_end=14400.0)
+            ax.plot(t_a / 60.0, y[0], label="MazE libre",
+                    color="#2471a3", lw=1.6)
+            ax.plot(t_a / 60.0, y[1], label="MazF libre",
+                    color="#c0392b", lw=1.6)
+            ax.axhline(kn.p("tox_lethal"), ls="--", c="k", lw=1)
+            if lost:
+                ax.axvline(60, c="#e67e22", lw=1.1)
+            ax.set_yscale("log")
+            ax.set_ylim(1e-2, 1e4)
+            d = kn.time_to_death(
+                KillSwitchConfig(ssrA=ssrA, plasmid_lost_at=lost))
+            want_death = lost is not None
+            good = (d is not None) == want_death
+            verdict = "sobrevive" if d is None else f"muere {d:.0f} min"
+            ax.set_title(f"{ver} — {'plasmido perdido' if lost else 'retenido'}"
+                         f"\n{verdict}  {'OK' if good else 'FALLA'}",
+                         fontsize=8.5,
+                         color="#1d6b2b" if good else "#a93226")
+            if row == 1:
+                ax.set_xlabel("tiempo (min)")
+            if col == 0:
+                ax.set_ylabel("concentracion (nM)")
+    axes[0, 0].legend(fontsize=7, loc="lower right")
+    fig.suptitle("El tag ssrA restaura la contencion: v2 solo muere "
+                 "cuando debe", fontsize=10)
     fig.tight_layout()
     fig.savefig(FIG_DIR / "03_killswitch.png")
     plt.close(fig)
 
     # --- fig 4: barrido de sintesis de toxina ---
     fig, ax = plt.subplots(figsize=(6.5, 4))
-    k_max = kn.max_toxin_synthesis()
-    ks = np.logspace(np.log10(k_max) - 1.5, np.log10(kn.p("k_mazF")) + 0.5, 40)
+    k_max = kn.max_toxin_synthesis(False)
+    k_max_v2 = kn.max_toxin_synthesis(True)
+    ks = np.logspace(np.log10(k_max) - 1.5, np.log10(k_max_v2) + 0.4, 40)
     orig = kn.PARAMS["k_mazF"]
     times = []
     for k in ks:
@@ -206,6 +246,7 @@ def make_figures() -> None:
 
     ax.plot(ks, times, color="#c0392b", lw=1.8, zorder=3)
     ax.axvspan(ks[0], k_max, color="#2a9d3f", alpha=0.10, zorder=0)
+    ax.axvline(k_max_v2, ls="--", c="#1d6b2b", lw=1.4, zorder=2)
     ax.axvline(k_max, ls="--", c="k", lw=1.2, zorder=2)
     ax.axvline(kn.p("k_mazF"), ls=":", c="#e67e22", lw=1.5, zorder=2)
 
@@ -217,12 +258,17 @@ def make_figures() -> None:
                 xytext=(kn.p("k_mazF") * 0.30, top * 0.42),
                 color="#e67e22", fontsize=8, ha="center", zorder=4,
                 arrowprops=dict(arrowstyle="->", color="#e67e22", lw=1.2))
-    ax.text(ks[0] * 1.15, top * 0.06, "celula viable", fontsize=8,
+    ax.text(ks[0] * 1.15, top * 0.06, "celula viable (v1)", fontsize=8,
             color="#1d6b2b", zorder=4)
+    ax.annotate(f"cota v2 con ssrA\n{k_max_v2:.3f} nM/s\nel diseno queda a la izquierda",
+                xy=(k_max_v2, top * 0.30),
+                xytext=(k_max_v2 * 0.55, top * 0.68),
+                fontsize=8, color="#1d6b2b", ha="center", zorder=4,
+                arrowprops=dict(arrowstyle="->", color="#1d6b2b", lw=1.2))
     ax.set_xscale("log")
     ax.set_xlabel("sintesis de MazF, $k_F$ (nM/s)")
     ax.set_ylabel("tiempo hasta muerte espuria (min)")
-    ax.set_title("A la izquierda de la cota la celula sobrevive indefinidamente")
+    ax.set_title("El tag ssrA mueve la cota 22x y deja el diseno del lado viable")
     fig.tight_layout()
     fig.savefig(FIG_DIR / "04_toxin_sweep.png")
     plt.close(fig)

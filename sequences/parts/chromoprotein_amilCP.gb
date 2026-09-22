@@ -1,0 +1,25 @@
+LOCUS       chromoprotein_am         708 bp    DNA     linear   SYN 22-SEP-2026
+DEFINITION  Yakuponia / chromoprotein_amilCP.
+ACCESSION   chromoprotein_amilCP
+VERSION     chromoprotein_amilCP
+KEYWORDS    .
+SOURCE      synthetic DNA construct
+  ORGANISM  synthetic DNA construct
+FEATURES             Location/Qualifiers
+     misc_feature    1..708
+                     /label="amilCP (BBa_K592009)"
+                     /note="blue-violet chromoprotein from Acropora millepora; visible pigment without excitation. Replaces mCherry in MetalGen"
+ORIGIN
+        1 atgagcgtga ttgcaaaaca gatgacctat aaagtttata tgagcggcac cgtgaatggt
+       61 cattattttg aagttgaagg tgatggtaaa ggtcgtccgt atgaaggtca tcaggaaatg
+      121 accctgcgtg ttaccatggc aaaaggtggt ccgatgccgt ttgcatttga tattgttagc
+      181 attgcatttt gctatggtaa tcgtgttttt gcaaaatatc cgaaagaaat tccggattat
+      241 tttaaacaga gctttccgga aggttatagc tgggaacgta ccatgatttt tgaagatggt
+      301 ggtgttctga ccgcacatca ggataccagc ctggaaggta attgtctgat ttataaagtg
+      361 aaagttctgg gtaccaattt tccggcaaat ggtccggtta tgcagaaaaa aaccctgggt
+      421 tgggaagcaa ataccgaaat gctgtatccg gcagatggtg gtctggaagg tcgtagcgat
+      481 atggcactga aactggttgg tggtggtcat ctgatttgta attttaaaac cacctatcgt
+      541 agcaaaaaac cggcaaaaaa tctgaaaatg ccgggtgttt attatgtgga tcatcgtctg
+      601 gaacgtatta aagaagcaaa tgatgaaacc tatgttgaac agcatgaagt ggcagttgca
+      661 cgttattgtg atctgccgag caaactgggt cataaactga attaataa
+//

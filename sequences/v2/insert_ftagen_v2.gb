@@ -1,0 +1,58 @@
+LOCUS       ins_FtaGen_v2           1843 bp    DNA     linear   SYN 22-SEP-2026
+DEFINITION  Yakuponia / insert_ftagen_v2. Version corregida: cromoproteinas, espaciadores RBS y tag ssrA.
+ACCESSION   insert_ftagen_v2
+VERSION     insert_ftagen_v2
+KEYWORDS    .
+SOURCE      synthetic DNA construct
+  ORGANISM  synthetic DNA construct
+FEATURES             Location/Qualifiers
+     regulatory      1..1095
+                     /label="P_pht + regulator"
+                     /note="phthalate-responsive regulatory region with cognate
+                     regulator CDS"
+     RBS             1096..1108
+                     /label="RBS medium (BBa_B0032)"
+                     /note="ribosome binding site, medium strength"
+     misc_feature    1109..1115
+                     /label="spacer 7 nt"
+                     /note="restores functional RBS-ATG distance; was 0 nt in v1"
+     CDS             1116..1802
+                     /label="eforRed"
+                     /note="red chromoprotein (BBa_K592012); replaces GFP, visible
+                     without excitation"
+     terminator      1803..1843
+                     /label="BBa_B1002"
+                     /note="rrnB-like transcriptional terminator"
+ORIGIN
+        1 gtttgatccc cgtcaacggc atagtatatc ggcatagtat aatacgacat ggatttttgc
+       61 ttattgaacg agaaaagtca gatcttcgtc cacgccgagc cctatgcagt ctccgattat
+      121 gttaaccagt atgtcggtac gcactctatt cgcctgccca ggggcgggcg cccggcaggc
+      181 aggctgcacc acagaatctt cggatgcctc gatctgtgtc gaatcagcta cggcggtagc
+      241 gtgagggtaa tctcgcctgg attagagacg tgttatcatc tgcaaataat actcaaaggc
+      301 cattgcctgt ggcgtggcca tggccaggag cactattttg cgccgggcga actattgctg
+      361 ctcaatccgg atgaccaagc cgacctgacc tattcagaag attgcgagaa atttatcgtt
+      421 aaattgccct cagtggtcct tgatcgggcg tgcagtgaca acaattggca caagccgagg
+      481 gagggtatcc gtttcgccgc gcgacacaat ctccagcaac tcgatggctt tatcaatcta
+      541 ctcgggttag tttgtgacga agcggaacat acaaagtcga tgcctcgggt ccaagagcac
+      601 tatgcgggga tcatcgcttc caagctgctc gaaatgctgg gcagcaatgt cagccgtgaa
+      661 attttcagca aaggtaaccc gtctttcgag cgagtcgttc aattcattga ggagaatcag
+      721 aaacggaata tcagccttga gcggttagcg gagctggcga tgatgagtcc acgctcgctc
+      781 tacaatttgt tcgagaagca cgccggcacc acgccgaaga actacatccg caaccgcaag
+      841 ctcgaaagca tccgcgcctg cttgaacgat cccagtgcca atgtgcgtag tataactgag
+      901 atagccctag actacggctt cttacatttg ggacgcttcg ctgaaaacta taggagcgcg
+      961 ttcggcgagt tgccttccga caccctgcgt caatgcaaaa aggaagtggc ttgaagtcca
+     1021 gccttgcaag aagcggatac aggagtgcaa aaaatggcta tctctagtaa ggcctacccc
+     1081 ttaggcttta tgcaatcaca caggaaagaa ttaagatgag cgtgatcgca aaacagatga
+     1141 cctataaagt ttatatgagc ggcaccgtga atggtcacta ttttgaagtg gaaggcgatg
+     1201 gtaaaggtca tccgtatgaa ggcacccaga ccgcaaaact gaccgttacc aaaggtggtc
+     1261 cgctgccgtt tgcatgggat attctgagcc cgcagtgtca gtatggtagc attccgttta
+     1321 ccaaatatcc ggaagatatt ccggattatg tgaaacagag ctttccggaa ggttatacct
+     1381 gggaacgtat tatgaacttt gaagatggtg cagtttgtac cgttagcaat gatagcagca
+     1441 ttcagggtaa ttgttttatt tatcatgtta aatttagcgg tctgaatttt ccgccgaatg
+     1501 gtccggttat gcagaaaaaa accctgaaat gggaaccgag caccgaaaaa ctgtatgttc
+     1561 gtgatggtgt tctgaaaggt gatgttaata tggcactgag cctggaaggt ggtggtcatt
+     1621 atcgttgtga ttttaaaacc acctataaag caaaaaaagt tgttcagctg ccggattatc
+     1681 attttgttga tcatcgtatt gaaattctga accatgataa agattataac aaagtgaccc
+     1741 tgtatgaaca tgccgtggca cgtaatagca ccgatggtat ggatgaactg tataaataat
+     1801 aatcacactg gctcaccttc gggtgggcct ttctgcgttt ata
+//

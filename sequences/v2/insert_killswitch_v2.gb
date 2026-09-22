@@ -1,0 +1,58 @@
+LOCUS       ins_KillSw_v2            988 bp    DNA     linear   SYN 22-SEP-2026
+DEFINITION  Yakuponia / insert_killswitch_v2. Version corregida: cromoproteinas, espaciadores RBS y tag ssrA.
+ACCESSION   insert_killswitch_v2
+VERSION     insert_killswitch_v2
+KEYWORDS    .
+SOURCE      synthetic DNA construct
+  ORGANISM  synthetic DNA construct
+FEATURES             Location/Qualifiers
+     promoter        1..35
+                     /label="J23117"
+                     /note="Anderson constitutive promoter, weak (iGEM BBa_J23117)"
+     RBS             36..48
+                     /label="RBS medium (BBa_B0032)"
+                     /note="ribosome binding site, medium strength"
+     misc_feature    49..55
+                     /label="spacer 7 nt"
+                     /note="restores functional RBS-ATG distance; was 0 nt in v1"
+     CDS             56..424
+                     /label="mazF-ssrA"
+                     /note="MazF endoribonuclease with C-terminal AANDENYALAA
+                     degradation tag; destabilised to raise the viability bound"
+     terminator      425..553
+                     /label="BBa_B0015"
+                     /note="double terminator rrnB T1 + T7TE"
+     promoter        554..588
+                     /label="J23100"
+                     /note="Anderson constitutive promoter, strong (iGEM BBa_J23100)"
+     RBS             589..600
+                     /label="RBS strong (BBa_B0034)"
+                     /note="ribosome binding site, strong"
+     misc_feature    601..607
+                     /label="spacer 7 nt"
+                     /note="restores functional RBS-ATG distance; was 0 nt in v1"
+     CDS             608..859
+                     /label="mazE"
+                     /note="MazE antitoxin, E. coli MazEF type II TA system"
+     terminator      860..988
+                     /label="BBa_B0015"
+                     /note="double terminator rrnB T1 + T7TE"
+ORIGIN
+        1 ttgacagcta gctcagtcct agggattgtg ctagctcaca caggaaagaa ttaagatggt
+       61 aagccgatac gtacccgata tgggcgatct gatttgggtt gattttgacc cgacaaaagg
+      121 tagcgagcaa gctggacatc gtccagctgt tgtcctgagt cctttcatgt acaacaacaa
+      181 aacaggtatg tgtctgtgtg ttccttgtac aacgcaatca aaaggatatc cgttcgaagt
+      241 tgttttatcc ggtcaggaac gtgatggcgt agcgttagct gatcaggtaa aaagtatcgc
+      301 ctggcgggca agaggagcaa cgaagaaagg aacagttgcc ccagaggaat tacaactcat
+      361 taaagccaaa attaacgtac tgattggggc agcaaacgac gaaaactacg ctctggcagc
+      421 ctaaccaggc atcaaataaa acgaaaggct cagtcgaaag actgggcctt tcgttttatc
+      481 tgttgtttgt cggtgaacgc tctctactag agtcacactg gctcaccttc gggtgggcct
+      541 ttctgcgttt atattgacgg ctagctcagt cctaggtaca gtgctagcaa agaggagaaa
+      601 aattaagatg atccacagta gcgtaaagcg ttggggaaat tcaccggcgg tgcggatccc
+      661 ggctacgtta atgcaggcgc tcaatctgaa tattgatgat gaagtgaaga ttgacctggt
+      721 ggatggcaaa ttaattattg agccagtgcg taaagagccc gtatttacgc ttgctgaact
+      781 ggtcaacgac atcacgccgg aaaacctcca cgagaatatc gactggggag agccgaaaga
+      841 taaggaagtc tggtaataac caggcatcaa ataaaacgaa aggctcagtc gaaagactgg
+      901 gcctttcgtt ttatctgttg tttgtcggtg aacgctctct actagagtca cactggctca
+      961 ccttcgggtg ggcctttctg cgtttata
+//

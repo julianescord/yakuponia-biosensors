@@ -1,0 +1,25 @@
+LOCUS       chromoprotein_ef         687 bp    DNA     linear   SYN 22-SEP-2026
+DEFINITION  Yakuponia / chromoprotein_eforRed.
+ACCESSION   chromoprotein_eforRed
+VERSION     chromoprotein_eforRed
+KEYWORDS    .
+SOURCE      synthetic DNA construct
+  ORGANISM  synthetic DNA construct
+FEATURES             Location/Qualifiers
+     misc_feature    1..687
+                     /label="eforRed (BBa_K592012)"
+                     /note="red chromoprotein from Echinopora forskaliana; visible pigment without excitation. Replaces GFP in FtaGen"
+ORIGIN
+        1 atgagcgtga tcgcaaaaca gatgacctat aaagtttata tgagcggcac cgtgaatggt
+       61 cactattttg aagtggaagg cgatggtaaa ggtcatccgt atgaaggcac ccagaccgca
+      121 aaactgaccg ttaccaaagg tggtccgctg ccgtttgcat gggatattct gagcccgcag
+      181 tgtcagtatg gtagcattcc gtttaccaaa tatccggaag atattccgga ttatgtgaaa
+      241 cagagctttc cggaaggtta tacctgggaa cgtattatga actttgaaga tggtgcagtt
+      301 tgtaccgtta gcaatgatag cagcattcag ggtaattgtt ttatttatca tgttaaattt
+      361 agcggtctga attttccgcc gaatggtccg gttatgcaga aaaaaaccct gaaatgggaa
+      421 ccgagcaccg aaaaactgta tgttcgtgat ggtgttctga aaggtgatgt taatatggca
+      481 ctgagcctgg aaggtggtgg tcattatcgt tgtgatttta aaaccaccta taaagcaaaa
+      541 aaagttgttc agctgccgga ttatcatttt gttgatcatc gtattgaaat tctgaaccat
+      601 gataaagatt ataacaaagt gaccctgtat gaacatgccg tggcacgtaa tagcaccgat
+      661 ggtatggatg aactgtataa ataataa
+//

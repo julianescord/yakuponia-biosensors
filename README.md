@@ -8,6 +8,10 @@ Bootcamp.
 > **Estado: diseño computacional. Ninguna construcción ha sido ensamblada ni
 > validada experimentalmente.** Las limitaciones conocidas están listadas
 > abajo y son detectadas automáticamente por `scripts/validate_assembly.py`.
+>
+> El diseño va por su **versión 2**: el modelo cinético reveló tres defectos
+> bloqueantes en la v1 y la v2 los corrige. Ambas versiones se conservan —
+> `sequences/annotated/` es la v1, `sequences/v2/` la corregida.
 
 ---
 
@@ -41,7 +45,23 @@ Tres constructos, dos chasis de *Bacillus subtilis*:
 Los tres comparten la misma lógica: `promotor inducible → RBS → reportera → terminador`.
 
 El comportamiento dinámico de los tres está modelado en [model/](model/), que
-es donde aparecen los defectos que la secuencia por sí sola no revela.
+es donde aparecieron los defectos que la secuencia por sí sola no revela.
+
+### Versiones
+
+| | v1 | v2 |
+|---|---|---|
+| Reportero FtaGen | GFP | **eforRed** (cromoproteína) |
+| Reportero MetalGen | mCherry | **amilCP** (cromoproteína) |
+| Espaciado RBS→ATG | 0 nt | **7 nt** |
+| RBS del reportero MetalGen | ausente | **BBa_B0034 propio** |
+| MazF | sin tag | **fusión ssrA** |
+| Sensor de ftalatos | no da señal | 41 min |
+| Kill switch con plásmido | muere a 95 min | **sobrevive** |
+| Kill switch sin plásmido | muere a 67 min | muere a 68 min |
+
+Los insertos v2 están en `sequences/v2/` y pasan el validador **sin fallas**.
+La v1 se conserva en `sequences/annotated/` como referencia de lo corregido.
 
 ### FtaGen — sensor de ftalatos
 
@@ -139,7 +159,7 @@ Todas verificadas por búsqueda de subcadena dentro de los constructos
 Declaradas explícitamente porque un diseño que no lista sus defectos no es
 revisable. Las tres primeras las detecta el validador automáticamente.
 
-### 1. Los reporteros son fluorescentes, no cromoproteínas — *bloqueante*
+### 1. Reporteros fluorescentes — *corregido en v2*
 
 La propuesta de producto es lectura **a simple vista, sin instrumentación**.
 GFP y mCherry **no cumplen eso**: requieren excitación UV/azul y un lector de
@@ -156,13 +176,15 @@ producen pigmento visible sin excitación:
 El diseño es modular, así que el cambio es un reemplazo de una sola parte: solo
 cambia el CDS reportero, el resto del casete queda igual.
 
-**Pero el modelo cinético muestra que no basta.** La cromoproteína es la más
-rápida de las tres (41 min frente a 48 de GFP y 58 de mCherry), pero **ninguna
-cruza el umbral visual en 30 min**: la maduración del cromóforo impone un piso
-que no se evita optimizando promotor ni RBS. Hay que ajustar la afirmación a
-~45 min, o declarar que los 30 min requieren lector. Ver [model/](model/).
+**Aplicado en la v2:** `chromoprotein_eforRed` y `chromoprotein_amilCP`.
 
-### 2. Espaciado RBS→ATG de 0 nt — *bloqueante*
+**Pero el modelo muestra que no basta.** La cromoproteína es la más rápida
+(41 min), pero **ninguna cruza el umbral visual en 30 min**: la maduración del
+cromóforo impone un piso que no se evita optimizando promotor ni RBS. Queda
+ajustar la afirmación a ~45 min, o declarar que los 30 min requieren lector.
+Ver [model/](model/).
+
+### 2. Espaciado RBS→ATG de 0 nt — *corregido en v2*
 
 En FtaGen y en ambas unidades del kill switch, el codón de inicio está pegado
 al RBS sin espaciador:
@@ -178,13 +200,19 @@ Es especialmente grave en el kill switch, porque afecta a toxina y antitoxina
 de forma no necesariamente proporcional: el ratio del que depende la contención
 podría invertirse.
 
-**Corrección:** insertar espaciador de 6–8 nt en las tres uniones.
+**Aplicado en la v2:** espaciador de 7 nt en las tres uniones.
 
-El modelo cuantifica el costo: por debajo del 20 % de eficiencia traduccional
-el sensor **nunca** alcanza el umbral visual, porque la síntesis no supera a la
-dilución por división. No es una demora, es una pérdida de función.
+El modelo cuantifica el costo de no hacerlo: por debajo del 20 % de eficiencia
+traduccional el sensor **nunca** alcanza el umbral, porque la síntesis no supera
+a la dilución por división. No era una demora, era pérdida de función — el
+FtaGen v1 no llegaba a dar señal visible en ningún tiempo.
 
-### 3. El kill switch dispara solo — *bloqueante*
+**Defecto adicional encontrado al corregir:** el reportero de MetalGen no tenía
+RBS propio. El único RBS del casete estaba a 324 nt, separado por el arsR
+reverso. La v2 añade un `BBa_B0034` dedicado, haciendo el casete bicistrónico
+explícito.
+
+### 3. El kill switch dispara solo — *corregido en v2*
 
 Hallazgo del modelo cinético, no visible en la secuencia.
 
@@ -202,9 +230,16 @@ Consecuencia: la célula muere a los 95 min **aunque conserve el plásmido**,
 contra 67 min si lo pierde. El margen de 28 min no permite discriminar — un
 kill switch que mata al huésped que debía preservar no es contención.
 
-**Aumentar la antitoxina no lo arregla**, solo retrasa el disparo. Las opciones
-son bajar `k_mazF` ~16x, desestabilizar MazF con un tag ssrA, o hacer la toxina
-condicional en vez de constitutiva. Detalle en [model/](model/).
+**Aumentar la antitoxina no lo arregla**, solo retrasa el disparo.
+
+**Aplicado en la v2:** tag ssrA (AANDENYALAA) en el C-terminal de MazF, que la
+hace sustrato de ClpXP y baja su t½ de ~90 a ~4 min. Eso sube la cota **22×**
+sin tocar promotores ni RBS, y la v2 discrimina correctamente: sobrevive con el
+plásmido, muere a los 68 min al perderlo.
+
+Los márgenes siguen siendo estrechos (35 nM contra un umbral de 50; ventana
+letal de 18 min) y dependen de parámetros no medidos. Detalle en
+[model/](model/).
 
 ### 4. Estándares de ensamblaje mezclados
 
@@ -245,8 +280,9 @@ sequences/
   backbones/   vectores pHT01 y pWB980
   annotated/   ← constructos reanotados, generados por script
 scripts/
-  reannotate.py         reconstruye la anotación desde las partes
-  validate_assembly.py  valida el ensamblaje y reporta defectos
+  reannotate.py         reconstruye la anotación de la v1 desde las partes
+  build_v2.py           ensambla los insertos v2 aplicando las correcciones
+  validate_assembly.py  valida ambas versiones y reporta defectos
 model/
   kinetics.py           ODEs de los sensores y del kill switch
   run_analysis.py       corre el análisis y escribe las figuras
@@ -266,12 +302,14 @@ regenerarlo:
 ```bash
 python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 python3 scripts/reannotate.py                    # reconstruye la anotación
-.venv/bin/python scripts/validate_assembly.py    # valida el ensamblaje
+.venv/bin/python scripts/build_v2.py             # ensambla la v2 corregida
+.venv/bin/python scripts/validate_assembly.py    # valida ambas versiones
 .venv/bin/python model/run_analysis.py           # análisis cinético
 ```
 
-El validador sale con código 1 mientras queden defectos abiertos — los 8 que
-reporta hoy corresponden a las limitaciones 1 y 2.
+El validador sale con código 1 mientras queden defectos abiertos. Hoy reporta
+**6, todos de la v1**, que se conserva a propósito como referencia; los tres
+insertos v2 pasan limpios.
 
 ### Por qué reanotar
 
@@ -286,13 +324,16 @@ ArsR/SmtB no anotado.
 
 ## Próximos pasos
 
-- [ ] Sustituir GFP/mCherry por eforRed/amilCP (limitación 1)
-- [ ] Insertar espaciadores RBS→ATG de 6–8 nt (limitación 2)
+- [x] Sustituir GFP/mCherry por eforRed/amilCP (limitación 1)
+- [x] Insertar espaciadores RBS→ATG de 7 nt (limitación 2)
+- [x] Añadir RBS propio al reportero de MetalGen
+- [x] Tag ssrA en MazF para restaurar la contención (limitación 3)
 - [ ] Elegir un único estándar de ensamblaje y domesticar sitios (limitación 4)
 - [ ] Recalibrar el ratio toxina:antitoxina para σA de *B. subtilis* (limitación 5)
 - [x] Modelo cinético (ODEs): dosis-respuesta y tiempo hasta señal
-- [ ] Rediseñar el kill switch para respetar la cota de viabilidad (limitación 3)
 - [ ] Ajustar la afirmación de tiempo de respuesta a ~45 min, o declarar lector
+- [ ] Evaluar toxina condicional: los márgenes de la v2 son estrechos
+- [ ] Ensamblar los insertos v2 en sus backbones (pHT01, pWB980)
 - [ ] Protocolo de validación húmeda: cepas, concentraciones, controles
 - [ ] Análisis de sensibilidad global sobre los parámetros del modelo
 
