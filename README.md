@@ -232,7 +232,7 @@ Shine-Dalgarno más largo:
 **Aplicado en la v3:** RBS con SD `AAAGGAGG`/`AAAGGAGGTG`. El validador mide
 este apareamiento y falla por debajo de 5 nt.
 
-### 3. El kill switch no contiene — *corregido en v3*
+### 3. El kill switch no contiene — *corregido en v3, pero la arquitectura es frágil*
 
 Hallazgo del modelo cinético, no visible en la secuencia.
 
@@ -261,7 +261,19 @@ Solo con los RBS de la **v3** el switch discrimina — sobrevive con el plásmid
 muere a los 74 min al perderlo.
 
 Los márgenes siguen estrechos (26 nM contra un umbral de 50; ventana letal de
-10 min) y dependen de parámetros no medidos. Detalle en [model/](model/).
+10 min) y dependen de parámetros no medidos.
+
+**El análisis de sensibilidad muestra que el problema es de arquitectura, no de
+calibración.** Muestreando el espacio de parámetros, solo el **25,9 %** de las
+combinaciones cumple las dos condiciones a la vez —no matar con el plásmido y
+matar sin él—. El modo de fallo dominante (60 %) no es el disparo espurio sino
+**la falta de muerte**: un margen de seguridad amplio en reposo es justo lo que
+impide que la toxina alcance el nivel letal tras el escape.
+
+Con promotores constitutivos, seguridad y contención se regulan con el mismo
+parámetro y en sentidos opuestos. La solución es hacer la toxina **condicional**,
+expresada solo ante la señal de escape. Es un rediseño, no un ajuste. Detalle en
+[model/](model/).
 
 ### 4. Estándares de ensamblaje — *resuelto al reensamblar*
 
@@ -336,7 +348,8 @@ scripts/
   validate_assembly.py  valida ambas versiones y reporta defectos
 model/
   kinetics.py           ODEs de los sensores y del kill switch
-  run_analysis.py       corre el análisis y escribe las figuras
+  run_analysis.py       análisis determinista
+  sensitivity.py        sensibilidad global (Sobol)
   figures/              salida, regenerable
 docs/
   maps/        mapas circulares de cada constructo (Benchling)
@@ -356,6 +369,7 @@ python3 scripts/reannotate.py                    # reconstruye la anotación
 .venv/bin/python scripts/build_corrected.py      # ensambla v2 y v3
 .venv/bin/python scripts/validate_assembly.py    # valida ambas versiones
 .venv/bin/python model/run_analysis.py           # análisis cinético
+.venv/bin/python model/sensitivity.py --fast     # sensibilidad global (~2 min)
 ```
 
 El validador sale con código 1 mientras queden defectos abiertos. Hoy reporta
@@ -384,12 +398,14 @@ ArsR/SmtB no anotado.
 - [ ] Elegir un único estándar de ensamblaje y domesticar sitios (limitación 4)
 - [x] Modelo cinético (ODEs): dosis-respuesta y tiempo hasta señal
 - [ ] Ajustar la afirmación de tiempo de respuesta a ~45 min, o declarar lector
-- [ ] Evaluar toxina condicional: los márgenes de la v2 son estrechos
+- [ ] Rediseñar el kill switch con toxina condicional (la arquitectura
+      constitutiva no separa los dos regímenes)
+- [ ] Medir `tox_lethal`, `k_txn_max` y `thr_visual`: dominan las conclusiones
 - [ ] Ensamblar los insertos v3 en sus backbones (pHT01, pWB980)
 - [ ] Sustituir BBa_B1002 por un terminador con cola poli-T (limitación 6)
 - [ ] Medir las fuerzas reales de J23100/J23117 en σA de *B. subtilis*
 - [ ] Protocolo de validación húmeda: cepas, concentraciones, controles
-- [ ] Análisis de sensibilidad global sobre los parámetros del modelo
+- [x] Análisis de sensibilidad global (Sobol) sobre el modelo
 
 ---
 

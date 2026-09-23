@@ -137,12 +137,94 @@ síntesis y degradación. Eso es un rediseño, no un ajuste.
 
 ---
 
+## 4. ¿Cuánto de esto depende de los parámetros elegidos?
+
+Análisis de sensibilidad global (Sobol) sobre 13 parámetros, cada uno muestreado
+en un rango que refleja su incertidumbre real — factor 2 para vidas medias bien
+acotadas, factor 4 para los umbrales de detección y letalidad, que son
+estimaciones gruesas.
+
+```bash
+.venv/bin/python model/sensitivity.py --fast   # ~2 min, suficiente para las conclusiones
+.venv/bin/python model/sensitivity.py          # ~15 min, cifras del texto
+```
+
+![sensibilidad](figures/05_sensitivity.png)
+
+Los índices: **S1** es la varianza que un parámetro explica por sí solo, **ST**
+incluye sus interacciones. `ST >> S1` significa que el parámetro importa sobre
+todo por cómo se combina con otros.
+
+### Qué gobierna cada conclusión
+
+**Tiempo hasta señal:** lo dominan `k_txn_max` (fuerza del promotor), `k_tln`
+(traducción) y `thr_visual` (umbral visual). Ninguno está medido en este
+sistema. Notablemente, `t_mat_chromo` —la maduración, que el análisis anterior
+presentaba como el cuello de botella— tiene ST ≈ 0.04: **es casi irrelevante**
+frente a la incertidumbre de los demás.
+
+**Margen del kill switch:** `tox_lethal` explica el 79 % de la varianza él solo.
+Es decir, la conclusión depende casi por completo de **cuánta MazF libre mata
+realmente a la célula** — un número que estimé, no que medí.
+
+**Retardo hasta la muerte:** aquí casi todo es interacción. `k_mazF`, `d_mazF_ssrA`,
+`k_mazE` y `d_mazE` tienen ST mucho mayor que S1: ningún parámetro manda solo,
+mandan las razones entre ellos.
+
+### El hallazgo: seguridad y contención compiten por el mismo parámetro
+
+![tensión](figures/06_killswitch_tradeoff.png)
+
+Un kill switch debe cumplir dos cosas a la vez: **no matar** con el plásmido y
+**matar** al perderlo. Muestreando el espacio de parámetros, solo una de cada
+cuatro combinaciones lo consigue:
+
+| | fracción |
+|---|---|
+| **cumple ambas** | **25.9 %** |
+| seguro pero no contiene | 60.1 % |
+| contiene pero dispara solo | 14.1 % |
+| ninguna | 0.0 % |
+
+Y el contraste es directo: entre las que **sí matan**, el margen mediano en
+reposo es de **32 nM**; entre las que **no**, de **108 nM**.
+
+**El modo de fallo dominante no es el disparo espurio, sino la falta de
+muerte.** Seis de cada diez combinaciones producen una célula perfectamente
+segura que nunca muere al escapar. Y la razón es directa: un margen amplio en
+reposo significa que la toxina está lejos del nivel letal, que es exactamente
+lo que impide que lo alcance tras perder el plásmido.
+
+Con promotores constitutivos, **seguridad y contención se regulan con el mismo
+parámetro y en sentidos opuestos**. No es un problema de calibración que se
+resuelva afinando `k_mazF`: es la arquitectura. La solución es hacer la toxina
+**condicional** —expresada solo ante la señal de escape— de modo que los dos
+regímenes queden separados por una entrada, no por un valor.
+
+> Nota metodológica: la correlación aparente entre margen y retardo (+0.70) es
+> **artefacto de censurar el retardo a 6 h**. Entre las muestras que sí matan,
+> la correlación real es +0.19. El hallazgo se sostiene por las fracciones de
+> la tabla y por el contraste de márgenes, no por esa correlación.
+>
+> Cifras de la corrida completa (n=1024, 15.360 evaluaciones). Con `--fast`
+> (n=128) los porcentajes varían menos de un punto, así que las conclusiones
+> no dependen del tamaño de muestra.
+
+### Qué habría que medir primero
+
+Por orden de impacto sobre las conclusiones:
+
+1. **`tox_lethal`** — cuánta MazF libre mata. Domina dos de las tres salidas.
+2. **`k_txn_max` y `k_tln`** — fuerza real de promotor y traducción en *B. subtilis*.
+3. **`thr_visual`** — cuánta cromoproteína hace falta para ver color.
+
 ## Estructura
 
 | Archivo | Qué hace |
 |---|---|
 | `kinetics.py` | ODEs, parámetros y la cota analítica de viabilidad |
-| `run_analysis.py` | corre el análisis, imprime la tabla y escribe las figuras |
+| `run_analysis.py` | análisis determinista y figuras 01–04 |
+| `sensitivity.py` | Sobol sobre 13 parámetros, figuras 05–06 |
 | `figures/` | salida, regenerable — no editar a mano |
 
 Integración con **LSODA**, que conmuta solo entre métodos stiff y no-stiff: el
@@ -151,7 +233,7 @@ sistema lo es, porque `k_on` es rápido frente a las degradaciones y `d_mazE` y
 
 ## Qué falta
 
-- Ajustar parámetros contra datos experimentales propios
-- Análisis de sensibilidad global (Sobol) para saber qué parámetros dominan
+- Medir `tox_lethal`, `k_txn_max` y `thr_visual`, que son los que dominan
+- Rediseñar el kill switch con toxina condicional, no constitutiva
 - Modelo estocástico: a bajo número de copias el ruido puede disparar el switch
 - Carga metabólica del plásmido sobre el crecimiento
