@@ -243,28 +243,37 @@ def _ks_rhs(t: float, y: np.ndarray, cfg: KillSwitchConfig) -> list[float]:
 
 
 def simulate_killswitch(cfg: KillSwitchConfig | None = None,
-                        t_end: float = 21600.0):
-    """Integra el kill switch. Devuelve (t, y) con y = [MazE, MazF, complejo]."""
+                        t_end: float = 21600.0, dense: bool = True):
+    """Integra el kill switch. Devuelve (t, y) con y = [MazE, MazF, complejo].
+
+    `dense=False` omite la interpolacion continua y afloja la tolerancia: es
+    lo que usa el muestreo de Sobol, donde importa el agregado sobre miles de
+    corridas y no la trayectoria individual.
+    """
     cfg = cfg or KillSwitchConfig()
     # Sistema stiff: k_on es rapido frente a las degradaciones, y d_mazE y
     # d_mazF difieren un orden de magnitud. LSODA conmuta solo entre metodos.
-    sol = solve_ivp(
-        _ks_rhs, (0.0, t_end), [0.0, 0.0, 0.0], args=(cfg,),
-        method="LSODA", dense_output=True, max_step=300.0,
-        rtol=1e-8, atol=1e-10,
-    )
+    # La discontinuidad al perder el plasmido se declara con t_eval para que
+    # el integrador no la atraviese con un paso largo.
+    kw = dict(method="LSODA", max_step=300.0, rtol=1e-8, atol=1e-10)
+    if dense:
+        kw["dense_output"] = True
+    else:
+        kw.update(rtol=1e-6, atol=1e-8, max_step=600.0,
+                  t_eval=np.linspace(0.0, t_end, 361))
+    sol = solve_ivp(_ks_rhs, (0.0, t_end), [0.0, 0.0, 0.0], args=(cfg,), **kw)
     return sol.t, sol.y
 
 
 def time_to_death(cfg: KillSwitchConfig | None = None,
-                  t_end: float = 21600.0) -> float | None:
+                  t_end: float = 21600.0, dense: bool = True) -> float | None:
     """Minutos hasta que MazF libre supera el umbral letal.
 
     Devuelve None si la celula sobrevive dentro de t_end -- que es el
     resultado deseado mientras el plasmido se mantiene.
     """
     cfg = cfg or KillSwitchConfig()
-    t, y = simulate_killswitch(cfg, t_end)
+    t, y = simulate_killswitch(cfg, t_end, dense=dense)
     f = y[1]
     above = np.flatnonzero(f >= p("tox_lethal"))
     if above.size == 0:
