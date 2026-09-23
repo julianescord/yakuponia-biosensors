@@ -37,6 +37,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 FIG = ROOT / "figures"
 PANELS = FIG / "panels"
+MAIN = FIG / "main"
+SUPP = FIG / "supplementary"
 SKILL = Path.home() / ".claude/skills/scientific-figure/scripts"
 
 MM_PER_PT = 25.4 / 72
@@ -126,6 +128,28 @@ def build_fig3() -> dict:
             "labels": labels}
 
 
+COL_SINGLE_MM = 89.0
+
+
+def build_single(panel: str, name: str) -> dict:
+    """Figura suplementaria de un solo panel, a columna simple.
+
+    A 183 mm un panel suelto se estira y queda desproporcionado: 89 mm es el
+    ancho que le corresponde a un grafico unico.
+    """
+    x0, y0, right = 4.0, 3.0, 2.0
+    w, h = panel_size_pt(PANELS / f"{panel}.svg")
+    scale = round((COL_SINGLE_MM - x0 - right) / w, 4)
+    return {"name": name,
+            "config": {"width_mm": COL_SINGLE_MM,
+                       "height_mm": round(y0 + h * scale + 2.0, 1),
+                       "journal": "nature",
+                       "panels": [{"src": f"figures/panels/{panel}.svg",
+                                   "x_mm": round(x0, 2), "y_mm": round(y0, 2),
+                                   "scale": scale}]},
+            "labels": []}
+
+
 def build_fig2() -> dict:
     """Fig. 2 — rejilla 3x2 de version x destino del plasmido."""
     x0, gut, y0, vg = 6.0, 3.0, 4.0, 2.5
@@ -177,12 +201,14 @@ def inject_labels(svg: Path, labels: list[dict]) -> None:
                    encoding="utf-8")
 
 
-def compose(spec: dict) -> Path:
+def compose(spec: dict, out_dir: Path = None) -> Path:
+    out_dir = out_dir or MAIN
+    out_dir.mkdir(parents=True, exist_ok=True)
     name = spec["name"]
     cfg_path = FIG / f"{name}.config.json"
     cfg_path.write_text(json.dumps(spec["config"], indent=2), encoding="utf-8")
 
-    svg = FIG / f"{name}.svg"
+    svg = out_dir / f"{name}.svg"
     run([*("uv run --with svgutils --with lxml python".split()),
          str(SKILL / "compose.py"), str(cfg_path), "-o", str(svg)])
     inject_labels(svg, spec["labels"])
@@ -204,7 +230,7 @@ def compose(spec: dict) -> Path:
     for ext, extra in (("pdf", []), ("png", ["--dpi", "300"])):
         run([*("uv run --with cairosvg --with lxml python".split()),
              str(SKILL / "export.py"), str(svg),
-             "--out", str(FIG / f"{name}.{ext}"), *extra])
+             "--out", str(out_dir / f"{name}.{ext}"), *extra])
     print(f"  {name}: {spec['config']['width_mm']} x "
           f"{spec['config']['height_mm']} mm -> PDF + PNG")
     return svg
@@ -213,6 +239,12 @@ def compose(spec: dict) -> Path:
 BUILDERS = [("fig1_timecourse", build_fig1, "model/fig1_sensor.py"),
             ("fig2_v1_kept", build_fig2, "model/fig2_killswitch.py"),
             ("fig3_sobol", build_fig3, "model/fig3_sensitivity.py")]
+
+# Suplementarias: cada panel suelto, tal como lo pide el material adicional.
+SUPPLEMENTARY = [("figS1_timecourse", "figS1_sensor_timecourse"),
+                 ("figS2_dose_response", "figS2_dose_response"),
+                 ("figS3_toxin_sweep", "figS3_toxin_sweep"),
+                 ("figS4_quadrants", "figS4_quadrants")]
 
 
 def main() -> int:
@@ -223,8 +255,23 @@ def main() -> int:
         for gen in missing:
             print(f"  .venv/bin/python {gen}")
         return 1
+
+    print("principales:")
     for _, build, _ in BUILDERS:
-        compose(build())
+        compose(build(), MAIN)
+
+    pending = [p for p, _ in SUPPLEMENTARY
+               if not (PANELS / f"{p}.svg").exists()]
+    if pending:
+        print()
+        print("faltan paneles suplementarios; corre:")
+        print("  .venv/bin/python model/figS_supplementary.py --fast")
+        return 0
+
+    print()
+    print("suplementarias:")
+    for panel, name in SUPPLEMENTARY:
+        compose(build_single(panel, name), SUPP)
     return 0
 
 
