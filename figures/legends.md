@@ -10,19 +10,19 @@ estilo telegráfico → parámetros y procedencia → disponibilidad de datos.
 
 ---
 
-## Fig. 1 | Cinética de senal del biosensor frente al umbral visual
+## Fig. 1 | Cinética de señal del biosensor frente al umbral visual
 
 **a** Reportero maduro frente al tiempo para las tres versiones del
-constructo, con el plásmido inducido a 10 µM de contaminante. La linea gris
+constructo, con el plásmido inducido a 10 µM de contaminante. La línea gris
 horizontal discontinua marca el umbral de color visible a simple vista
 (5000 nM); la vertical punteada, los 30 min que afirma el proyecto. El punto
 señala el cruce del umbral. Solo la v3 lo alcanza, y lo hace a los 50 min.
 
-**b** Dosis-respuesta a los 30 min para tres reporteros, con las mismas lineas
+**b** Dosis-respuesta a los 30 min para tres reporteros, con las mismas líneas
 de umbral: la superior es el umbral visual y la inferior el de instrumento
 (50 nM). Ninguno de los tres cruza el umbral visual a ninguna concentración
-ensayada, de modo que el techo a los 30 min lo impone la maduracion del
-cromóforo y no la dosis de contaminante. La lectura con instrumento si es
+ensayada, de modo que el techo a los 30 min lo impone la maduración del
+cromóforo y no la dosis de contaminante. La lectura con instrumento sí es
 alcanzable en toda la meseta.
 
 Simulación determinista del sistema de ODEs de `model/kinetics.py`, integrada
@@ -67,36 +67,51 @@ Código fuente y datos: `model/fig2_killswitch.py`.
 
 **a** Índices de Sobol de primer orden (S1, tramo oscuro) y total (ST, barra
 completa) para las tres conclusiones del modelo, con los parámetros de
-ST ≥ 0.02 ordenados de menor a mayor. ST mucho mayor que S1 indica que el
+ST ≥ 0.02 ordenados de mayor a menor. ST mucho mayor que S1 indica que el
 parámetro actúa sobre todo por interacción. El umbral letal de MazF domina las
 dos conclusiones de contención; el tiempo hasta señal depende de forma
 repartida de la transcripción, la traducción y el umbral visual.
 
 **b** Margen de MazF libre bajo el umbral letal en reposo frente al retardo
-hasta la muerte tras la perdida del plásmido, para las muestras que si
-alcanzan nivel letal dentro de 6 h. En negro las que cumplen las dos
-condiciones de contención; en bermellón las que disparan con el plásmido
-retenido (margen negativo). **c** Reparto de todas las muestras entre los
-cuatro cuadrantes, en una barra apilada al 100% que incluye las censuradas que
-el panel b no puede representar.
+hasta la muerte tras la pérdida del plásmido, sobre las 1920 muestras. En negro
+las que cumplen las dos condiciones de contención; en bermellón las que
+disparan con el plásmido retenido (margen negativo). La banda gris superior
+reúne las muestras que nunca alcanzan nivel letal dentro de 6 h; su posición
+horizontal conserva el margen en reposo, y el eje vertical está partido porque
+esas muestras no tienen un retardo definido.
 
-El modo de fallo dominante no es el disparo espurio sino la ausencia de
-muerte: el 60% de las muestras es segura en reposo pero nunca alcanza
-concentración letal tras el escape. Con promotores constitutivos, seguridad y
-contención compiten por el mismo parametro.
+La banda llega a márgenes mayores que la nube inferior: al crecer el margen en
+reposo, la toxina deja de alcanzar concentración letal. El 60% de las muestras
+es segura pero no contiene, frente al 26% que cumple ambas condiciones y al 14%
+que dispara sola. Seguridad y contención compiten por el mismo parámetro.
 
-n = 1920 evaluaciones del modelo sobre una muestra de Sobol de 13 parámetros,
-con rangos de [valor/factor, valor*factor] según la incertidumbre de cada uno.
-Paleta Okabe-Ito.
+n = 1920 evaluaciones sobre una muestra de Sobol de 13 parámetros, con rangos
+de [valor/factor, valor×factor] según su incertidumbre. Paleta Okabe-Ito.
 
 Código fuente: `model/fig3_sensitivity.py`.
 
 ---
 
-## Extended Data
+## Figuras suplementarias
 
-**ED1** — Barrido de la tasa de síntesis de MazF frente a la cota analítica de
-viabilidad. Era la figura 04. Sostiene la misma afirmación que la Fig. 2 por
-vía analítica en vez de por simulación, así que no gana un panel en la figura
-principal, pero documenta de dónde sale la cota `k_F = d_F · F_letal` y cuánto
-la desplaza el tag ssrA.
+Conservan cada panel por separado, en el formato original, para el material
+adicional. Se generan con `model/figS_supplementary.py`.
+
+**Fig. S1 | Curso temporal del reportero maduro.** Las tres versiones del
+constructo con el plásmido inducido a 10 µM de contaminante. Es el panel a de
+la Fig. 1, a columna simple.
+
+**Fig. S2 | Dosis-respuesta a los 30 min.** Tres reporteros frente a los
+umbrales visual (5000 nM) y de instrumento (50 nM). Es el panel b de la Fig. 1.
+
+**Fig. S3 | Cota analítica de viabilidad del kill switch.** Tiempo hasta la
+muerte espuria frente a la tasa de síntesis de MazF. La banda verde marca el
+rango en que la célula es viable; las verticales, la cota de la v1
+(0.0064 nM/s), la de la v2 con tag ssrA (0.144 nM/s) y el valor del diseño
+(0.10 nM/s). El tag desplaza la cota 22× y deja el diseño del lado viable.
+Sostiene por vía analítica la misma conclusión que la Fig. 2 obtiene por
+simulación.
+
+**Fig. S4 | Reparto de las muestras entre los cuatro cuadrantes de
+contención.** Fracción de las 1920 muestras que cumple ambas condiciones, solo
+una, o ninguna. El modo de fallo dominante es no matar, no disparar sola.

@@ -1,0 +1,136 @@
+<?xml version='1.0' encoding='ASCII' standalone='yes'?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="89.0mm" viewBox="0 0 89.0 32.4" height="32.4mm">
+  <g data-journal="nature">
+    <g transform="translate(4.0, 3.0) scale(1 1) ">
+      <g transform="translate(0, 0) scale(0.262 0.262) "><metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-09-23T11:26:18.498184</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.11.2, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 104.4  L 316.8 104.4  L 316.8 0  L 0 0  L 0 104.4  z " style="fill: none"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 106.128 81.954  L 300.96 81.954  L 300.96 5.22  L 106.128 5.22  L 106.128 81.954  z " style="fill: none"/>
+   </g>
+   <g id="matplotlib.axis_1">
+    <g id="xtick_1">
+     <g id="line2d_1">
+      <defs>
+       <path id="m3431dd203c" d="M 0 0  L 0 2.4  " style="stroke: #000000; stroke-width: 0.6"/>
+      </defs>
+      <g>
+       <use xlink:href="#m3431dd203c" x="106.128" y="81.954" style="stroke: #000000; stroke-width: 0.6"/>
+      </g>
+     </g>
+     <g id="text_1">
+      <text style="font-size: 7px; font-family: 'Liberation Sans', 'Arial', 'Helvetica', 'DejaVu Sans', sans-serif; text-anchor: middle" x="106.128" y="92.950191" transform="rotate(-0 106.128 92.950191)">0</text>
+     </g>
+    </g>
+    <g id="xtick_2">
+     <g id="line2d_2">
+      <g>
+       <use xlink:href="#m3431dd203c" x="203.544" y="81.954" style="stroke: #000000; stroke-width: 0.6"/>
+      </g>
+     </g>
+     <g id="text_2">
+      <text style="font-size: 7px; font-family: 'Liberation Sans', 'Arial', 'Helvetica', 'DejaVu Sans', sans-serif; text-anchor: middle" x="203.544" y="92.950191" transform="rotate(-0 203.544 92.950191)">50</text>
+     </g>
+    </g>
+    <g id="xtick_3">
+     <g id="line2d_3">
+      <g>
+       <use xlink:href="#m3431dd203c" x="300.96" y="81.954" style="stroke: #000000; stroke-width: 0.6"/>
+      </g>
+     </g>
+     <g id="text_3">
+      <text style="font-size: 7px; font-family: 'Liberation Sans', 'Arial', 'Helvetica', 'DejaVu Sans', sans-serif; text-anchor: middle" x="300.96" y="92.950191" transform="rotate(-0 300.96 92.950191)">100</text>
+     </g>
+    </g>
+    <g id="text_4">
+     <text style="font-size: 7px; font-family: 'Liberation Sans', 'Arial', 'Helvetica', 'DejaVu Sans', sans-serif; text-anchor: middle" x="203.544" y="103.519527" transform="rotate(-0 203.544 103.519527)">Muestras (%)</text>
+    </g>
+   </g>
+   <g id="matplotlib.axis_2">
+    <g id="ytick_1">
+     <g id="line2d_4"/>
+     <g id="text_5">
+      <text style="font-size: 7px; font-family: 'Liberation Sans', 'Arial', 'Helvetica', 'DejaVu Sans', sans-serif; text-anchor: end" x="104.128" y="19.975778" transform="rotate(-0 104.128 19.975778)">Cumple ambas</text>
+     </g>
+    </g>
+    <g id="ytick_2">
+     <g id="line2d_5"/>
+     <g id="text_6">
+      <text style="font-size: 7px; font-family: 'Liberation Sans', 'Arial', 'Helvetica', 'DejaVu Sans', sans-serif; text-anchor: end" x="104.128" y="37.415323" transform="rotate(-0 104.128 37.415323)">Segura, no contiene</text>
+     </g>
+    </g>
+    <g id="ytick_3">
+     <g id="line2d_6"/>
+     <g id="text_7">
+      <text style="font-size: 7px; font-family: 'Liberation Sans', 'Arial', 'Helvetica', 'DejaVu Sans', sans-serif; text-anchor: end" x="104.128" y="54.854868" transform="rotate(-0 104.128 54.854868)">Contiene, dispara sola</text>
+     </g>
+    </g>
+    <g id="ytick_4">
+     <g id="line2d_7"/>
+     <g id="text_8">
+      <text style="font-size: 7px; font-family: 'Liberation Sans', 'Arial', 'Helvetica', 'DejaVu Sans', sans-serif; text-anchor: end" x="104.128" y="72.294414" transform="rotate(-0 104.128 72.294414)">Ninguna</text>
+     </g>
+    </g>
+   </g>
+   <g id="patch_3">
+    <path d="M 106.128 22.833941  L 157.575825 22.833941  L 157.575825 12.021423  L 106.128 12.021423  z " clip-path="url(#p573112ced6)"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 106.128 40.273486  L 222.41835 40.273486  L 222.41835 29.460968  L 106.128 29.460968  z " clip-path="url(#p573112ced6)" style="fill: #d55e00"/>
+   </g>
+   <g id="patch_5">
+    <path d="M 106.128 57.713032  L 133.221825 57.713032  L 133.221825 46.900514  L 106.128 46.900514  z " clip-path="url(#p573112ced6)" style="fill: #56b4e9"/>
+   </g>
+   <g id="patch_6">
+    <path d="M 106.128 75.152577  L 106.128 75.152577  L 106.128 64.340059  L 106.128 64.340059  z " clip-path="url(#p573112ced6)" style="fill: #bfbfbf"/>
+   </g>
+   <g id="patch_7">
+    <path d="M 106.128 81.954  L 106.128 5.22  " style="fill: none; stroke: #000000; stroke-width: 0.6; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="patch_8">
+    <path d="M 106.128 81.954  L 300.96 81.954  " style="fill: none; stroke: #000000; stroke-width: 0.6; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="text_9">
+    <text style="font-size: 7px; font-family: 'Liberation Sans', 'Arial', 'Helvetica', 'DejaVu Sans', sans-serif; text-anchor: start" x="161.082801" y="19.239205" transform="rotate(-0 161.082801 19.239205)">26%</text>
+   </g>
+   <g id="text_10">
+    <text style="font-size: 7px; font-family: 'Liberation Sans', 'Arial', 'Helvetica', 'DejaVu Sans', sans-serif; text-anchor: start" x="225.925326" y="36.678751" transform="rotate(-0 225.925326 36.678751)">60%</text>
+   </g>
+   <g id="text_11">
+    <text style="font-size: 7px; font-family: 'Liberation Sans', 'Arial', 'Helvetica', 'DejaVu Sans', sans-serif; text-anchor: start" x="136.728801" y="54.118296" transform="rotate(-0 136.728801 54.118296)">14%</text>
+   </g>
+   <g id="text_12">
+    <text style="font-size: 7px; font-family: 'Liberation Sans', 'Arial', 'Helvetica', 'DejaVu Sans', sans-serif; text-anchor: start" x="109.634976" y="71.557842" transform="rotate(-0 109.634976 71.557842)">0%</text>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="p573112ced6">
+   <rect x="106.128" y="5.22" width="194.832" height="76.734"/>
+  </clipPath>
+ </defs>
+</g>
+    </g>
+  </g>
+  <g id="panel-labels">
+  </g>
+</svg>
