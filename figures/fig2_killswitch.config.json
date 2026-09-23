@@ -1,0 +1,43 @@
+{
+  "width_mm": 183.0,
+  "height_mm": 150.8,
+  "journal": "nature",
+  "panels": [
+    {
+      "src": "figures/panels/fig2_v1_kept.svg",
+      "x_mm": 6.0,
+      "y_mm": 4.0,
+      "scale": 0.4657
+    },
+    {
+      "src": "figures/panels/fig2_v1_lost.svg",
+      "x_mm": 94.5,
+      "y_mm": 4.0,
+      "scale": 0.4657
+    },
+    {
+      "src": "figures/panels/fig2_v2_kept.svg",
+      "x_mm": 6.0,
+      "y_mm": 52.77,
+      "scale": 0.4657
+    },
+    {
+      "src": "figures/panels/fig2_v2_lost.svg",
+      "x_mm": 94.5,
+      "y_mm": 52.77,
+      "scale": 0.4657
+    },
+    {
+      "src": "figures/panels/fig2_v3_kept.svg",
+      "x_mm": 6.0,
+      "y_mm": 101.54,
+      "scale": 0.4657
+    },
+    {
+      "src": "figures/panels/fig2_v3_lost.svg",
+      "x_mm": 94.5,
+      "y_mm": 101.54,
+      "scale": 0.4657
+    }
+  ]
+}

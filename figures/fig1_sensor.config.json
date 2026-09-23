@@ -1,0 +1,19 @@
+{
+  "width_mm": 183.0,
+  "height_mm": 63.7,
+  "journal": "nature",
+  "panels": [
+    {
+      "src": "figures/panels/fig1_timecourse.svg",
+      "x_mm": 6.0,
+      "y_mm": 4.0,
+      "scale": 0.463
+    },
+    {
+      "src": "figures/panels/fig1_dose.svg",
+      "x_mm": 95.01,
+      "y_mm": 4.0,
+      "scale": 0.463
+    }
+  ]
+}

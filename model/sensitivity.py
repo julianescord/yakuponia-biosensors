@@ -108,31 +108,79 @@ OUTPUTS = [
 ]
 
 
-def main() -> int:
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--fast", action="store_true",
-                    help="menos muestras; para iterar, no para reportar")
-    args = ap.parse_args()
+CACHE_DIR = Path(__file__).resolve().parent / ".cache"
 
-    from SALib.analyze import sobol as sobol_analyze
+
+def _cache_key(prob: dict, n: int) -> Path:
+    """Identifica un barrido por sus rangos y su tamano de muestra.
+
+    Cambiar un rango de UNCERTAINTY o el numero de muestras invalida la cache;
+    cambiar solo el estilo de las figuras no.
+    """
+    import hashlib
+    import json
+    blob = json.dumps({"names": prob["names"], "bounds": prob["bounds"],
+                       "n": n}, sort_keys=True).encode()
+    return CACHE_DIR / f"sobol_{hashlib.sha256(blob).hexdigest()[:12]}.npz"
+
+
+def sample_model(prob: dict, n: int, *, refresh: bool = False):
+    """Evalua el modelo en la muestra de Sobol, con cache en disco.
+
+    El barrido cuesta minutos; las figuras se reajustan en segundos. Sin cache,
+    cada retoque visual pagaria el barrido entero de nuevo.
+    """
     from SALib.sample import sobol as sobol_sample
 
-    prob = problem()
-    n = 128 if args.fast else 1024
     X = sobol_sample.sample(prob, n, calc_second_order=False)
+    path = _cache_key(prob, n)
 
-    print("=" * 70)
-    print("Analisis de sensibilidad global (Sobol)")
-    print("=" * 70)
-    print(f"{len(prob['names'])} parametros, {len(X)} evaluaciones del modelo")
-    print("Rangos: [valor/factor, valor*factor], factor por incertidumbre")
-    print()
+    if path.exists() and not refresh:
+        data = np.load(path)
+        if data["X"].shape == X.shape:
+            print(f"  muestras reutilizadas de {path.name}"
+                  f"  ({len(X)} evaluaciones)")
+            return X, data["Y"]
 
     Y = np.empty((len(X), 3))
     for i, row in enumerate(X):
         Y[i] = evaluate(row, prob["names"])
         if (i + 1) % max(1, len(X) // 10) == 0:
             print(f"  {i + 1:>6}/{len(X)}")
+
+    CACHE_DIR.mkdir(exist_ok=True)
+    np.savez_compressed(path, X=X, Y=Y)
+    print(f"  muestras guardadas en {path.name}")
+    return X, Y
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--fast", action="store_true",
+                    help="menos muestras; para iterar, no para reportar")
+    ap.add_argument("--refresh", action="store_true",
+                    help="ignora la cache y recorre el modelo")
+    ap.add_argument("--figures-only", action="store_true",
+                    help="solo redibuja desde la cache; falla si no existe")
+    args = ap.parse_args()
+
+    from SALib.analyze import sobol as sobol_analyze
+
+    prob = problem()
+    n = 128 if args.fast else 1024
+
+    print("=" * 70)
+    print("Analisis de sensibilidad global (Sobol)")
+    print("=" * 70)
+    print(f"{len(prob['names'])} parametros, muestra base {n}")
+    print("Rangos: [valor/factor, valor*factor], factor por incertidumbre")
+    print()
+
+    if args.figures_only and not _cache_key(prob, n).exists():
+        print("  no hay cache para esta configuracion; corre sin --figures-only")
+        return 1
+
+    X, Y = sample_model(prob, n, refresh=args.refresh)
 
     results = {}
     for j, (key, label) in enumerate(OUTPUTS):
@@ -171,62 +219,127 @@ def make_figure(prob: dict, results: dict, Y: np.ndarray) -> None:
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
+    from matplotlib.gridspec import GridSpec
+    from matplotlib.lines import Line2D
+    from matplotlib.patches import Patch
 
-    FIG_DIR.mkdir(exist_ok=True)
-    plt.rcParams.update({"font.size": 9, "figure.dpi": 150,
-                         "axes.spines.top": False, "axes.spines.right": False})
+    from model import figstyle as fs
 
-    fig, axes = plt.subplots(1, 3, figsize=(11, 4))
-    for ax, (key, label) in zip(axes, OUTPUTS):
+    fs.apply_style()
+
+    # ----------------------------------------------------------------
+    # Fig 5 — indices de Sobol por conclusion
+    # ----------------------------------------------------------------
+    # Un panel por conclusion. Los paneles comparten eje x (0-1) y el mismo
+    # grosor de barra: si un panel retiene menos parametros, sobra espacio
+    # abajo en vez de engordar sus barras, porque el grosor no debe leerse
+    # como importancia.
+    per_panel = []
+    for key, _ in OUTPUTS:
         si = results[key]
-        order = np.argsort(si["ST"])
-        keep = [i for i in order if si["ST"][i] >= 0.02]
-        names = [prob["names"][i] for i in keep]
-        st = [si["ST"][i] for i in keep]
-        s1 = [max(si["S1"][i], 0) for i in keep]
-        y = np.arange(len(keep))
-        ax.barh(y, st, color="#c0392b", alpha=0.45, label="ST (total)")
-        ax.barh(y, s1, color="#2471a3", height=0.55, label="S1 (primer orden)")
-        ax.set_yticks(y)
-        ax.set_yticklabels(names, fontsize=7.5)
-        ax.set_xlabel("indice de Sobol")
-        ax.set_title(label, fontsize=8.5)
-        ax.set_xlim(0, 1)
-    axes[0].legend(fontsize=7, loc="lower right")
-    fig.suptitle("Que parametros gobiernan cada conclusion", fontsize=10)
-    fig.tight_layout()
-    fig.savefig(FIG_DIR / "05_sensitivity.png")
-    plt.close(fig)
+        keep = [i for i in np.argsort(si["ST"]) if si["ST"][i] >= 0.02]
+        per_panel.append(keep)
+    n_max = max(len(k) for k in per_panel)
 
-    # --- la tension entre las dos condiciones del kill switch ---
-    fig, ax = plt.subplots(figsize=(6.2, 4.4))
+    fig = plt.figure(figsize=(fs.COL_DOUBLE, 2.55))
+    gs = GridSpec(1, 3, figure=fig, wspace=0.62,
+                  left=0.105, right=0.975, top=0.815, bottom=0.275)
+    axes = [fig.add_subplot(gs[0, j]) for j in range(3)]
+
+    for ax, keep, (key, label) in zip(axes, per_panel, OUTPUTS):
+        si = results[key]
+        # las barras van de menor ST abajo a mayor arriba; todas apoyadas en
+        # la base para que los tres paneles compartan linea de arranque
+        y = np.arange(len(keep))
+        ax.barh(y, [si["ST"][i] for i in keep], height=0.62,
+                color=fs.C["st"], label="ST (con interacciones)", zorder=2)
+        ax.barh(y, [max(si["S1"][i], 0) for i in keep], height=0.30,
+                color=fs.C["s1"], label="S1 (efecto propio)", zorder=3)
+        ax.set_yticks(y)
+        ax.set_yticklabels([prob["names"][i] for i in keep])
+        ax.tick_params(axis="y", length=0, pad=1.5)
+        # mismo grosor de barra en los tres: el eje se fija al panel mayor
+        # el tope se fija al panel mas poblado: iguala el grosor de barra
+        # entre paneles, que si no se leeria como importancia
+        ax.set_ylim(-0.75, n_max - 0.25)
+        ax.set_xlim(0, 1)
+        ax.set_xticks([0, 0.5, 1.0])
+        ax.set_xlabel("indice de Sobol")
+        ax.set_title(label, fontsize=6.8, color=fs.C["ink"], pad=3.5)
+
+    fs.label_panels(axes, "abc", dx_pt=-40.0)
+    # leyenda bajo el panel a, fuera del area de barras
+    axes[0].legend(loc="upper left", bbox_to_anchor=(-0.01, -0.235),
+                   fontsize=6.0, handlelength=1.2, ncol=2, columnspacing=1.4)
+    fig.suptitle("Que parametros gobiernan cada conclusion del modelo",
+                 fontsize=8.0, y=0.965)
+    fs.save(fig, "05_sensitivity")
+
+    # ----------------------------------------------------------------
+    # Fig 6 — la tension entre seguridad y contencion
+    # ----------------------------------------------------------------
+    # El 59% de las muestras nunca alcanza nivel letal y quedaba aplastado
+    # sobre la linea de censura en y=360. Se separa en dos paneles: el (a)
+    # muestra solo las que SI matan, con eje real; el (b) cuantifica cuantas
+    # caen en cada cuadrante, que es la conclusion de verdad.
     safe, kills = Y[:, 1] > 0, Y[:, 2] < 360
-    groups = [
-        (safe & kills, "#1d6b2b", "cumple ambas"),
-        (safe & ~kills, "#e67e22", "seguro, no contiene"),
-        (~safe & kills, "#c0392b", "contiene, dispara solo"),
-        (~safe & ~kills, "#7f8c8d", "ninguna"),
-    ]
-    for mask, color, label in groups:
+
+    fig = plt.figure(figsize=(fs.COL_DOUBLE, 2.7))
+    gs = GridSpec(1, 2, figure=fig, width_ratios=[1.45, 1.0], wspace=0.30,
+                  left=0.078, right=0.985, top=0.80, bottom=0.165)
+    ax_s = fig.add_subplot(gs[0, 0])
+    ax_b = fig.add_subplot(gs[0, 1])
+
+    # (a) solo las muestras no censuradas: aqui el eje y significa algo
+    live = kills
+    for mask, color, lab in ((live & safe, fs.C["ok"], "cumple ambas"),
+                             (live & ~safe, fs.C["fail"], "dispara sola")):
         if mask.sum():
-            ax.scatter(Y[mask, 1], np.clip(Y[mask, 2], 0, 380), s=5,
-                       alpha=0.35, color=color,
-                       label=f"{label} ({mask.mean():.0%})")
-    ax.axvline(0, c="k", lw=1, ls="--")
-    ax.axhline(360, c="k", lw=1, ls=":")
-    ax.set_ylim(-15, 420)
-    ax.annotate("nunca alcanza nivel letal\n(censurado a 6 h)",
-                xy=(ax.get_xlim()[1] * 0.72, 360),
-                xytext=(ax.get_xlim()[1] * 0.50, 405),
-                fontsize=7.5, color="#555", ha="center",
-                arrowprops=dict(arrowstyle="->", color="#888", lw=1))
-    ax.set_xlabel("margen bajo el umbral letal en reposo (nM)")
-    ax.set_ylabel("retardo hasta la muerte tras el escape (min)")
-    ax.set_title("Margen amplio en reposo = la toxina nunca llega a matar")
-    ax.legend(fontsize=7, loc="upper left", markerscale=2.5)
-    fig.tight_layout()
-    fig.savefig(FIG_DIR / "06_killswitch_tradeoff.png")
-    plt.close(fig)
+            ax_s.scatter(Y[mask, 1], Y[mask, 2], s=2.6, alpha=0.30,
+                         color=color, linewidths=0, label=lab, rasterized=True)
+    ax_s.axvline(0, color=fs.C["ink"], lw=0.7, ls="--", zorder=4)
+    ax_s.set_xlabel("margen bajo el umbral letal en reposo (nM)")
+    ax_s.set_ylabel("retardo hasta la muerte\ntras el escape (min)")
+    ax_s.set_title("Muestras que si alcanzan nivel letal", fontsize=6.8, pad=3.5)
+    ax_s.legend(loc="upper left", markerscale=3.2, fontsize=6.0,
+                borderaxespad=0.25)
+    # nota dentro del area del panel: fuera se saldria de la pagina
+    ax_s.text(0.015, 0.055, "margen negativo = el switch dispara\n"
+              "con el plasmido retenido", transform=ax_s.transAxes,
+              fontsize=5.6, color=fs.C["mid"], va="bottom", linespacing=1.4)
+
+    # (b) los cuatro cuadrantes, incluido el 59% censurado que el panel (a)
+    # no puede mostrar
+    cats = [
+        ("cumple ambas", safe & kills, fs.C["ok"]),
+        ("seguro, no contiene", safe & ~kills, fs.C["warn"]),
+        ("contiene, dispara sola", ~safe & kills, fs.C["fail"]),
+        ("ninguna", ~safe & ~kills, fs.C["light"]),
+    ]
+    ypos = np.arange(len(cats))[::-1]
+    for yp, (lab, mask, color) in zip(ypos, cats):
+        frac = mask.mean()
+        ax_b.barh(yp, frac * 100, height=0.60, color=color, zorder=2)
+        # una categoria vacia no dibuja barra: se marca el cero para que no
+        # se confunda con un dato que falta
+        txt = f"{frac:.0%}" if frac >= 0.005 else "0% (ninguna muestra)"
+        ax_b.text(frac * 100 + 1.6, yp, txt, va="center",
+                  fontsize=6.5, color=fs.C["ink"])
+    ax_b.set_yticks(ypos)
+    ax_b.set_yticklabels([c[0] for c in cats], fontsize=6.3)
+    ax_b.tick_params(axis="y", length=0, pad=1.5)
+    ax_b.set_xlim(0, 100)
+    ax_b.set_xticks([0, 25, 50, 75, 100])
+    ax_b.set_xlabel("muestras (%)")
+    ax_b.set_title("El fallo dominante es no matar", fontsize=6.8, pad=3.5)
+    ax_b.set_ylim(-0.7, len(cats) - 0.3)
+
+    fs.label_panels([ax_s], "a", dx_pt=-30.0)
+    fs.label_panels([ax_b], "b", dx_pt=-74.0)
+    fig.suptitle("Un margen amplio en reposo impide que la toxina llegue "
+                 "a matar", fontsize=8.0, y=0.965)
+    fs.save(fig, "06_killswitch_tradeoff")
+
     print()
     print(f"  figuras escritas en {FIG_DIR.name}/")
 

@@ -30,3 +30,6 @@ lerna-debug.log*
 # python
 __pycache__/
 *.py[cod]
+
+# caché del barrido de Sobol: artefacto local, se regenera
+model/.cache/
