@@ -21,6 +21,9 @@ las vidas medias y las tasas de sintesis estan bien acotadas en literatura,
 mientras que los umbrales de deteccion y de letalidad son estimaciones
 gruesas y se muestrean en rangos mas amplios.
 
+Las figuras se generan aparte, con `model/fig3_sensitivity.py` y
+`model/compose_figures.py`, que reutilizan la cache de este barrido.
+
 Uso:  .venv/bin/python model/sensitivity.py [--fast]
 """
 from __future__ import annotations
@@ -36,7 +39,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from model import kinetics as kn  # noqa: E402
 from model.kinetics import KillSwitchConfig, SensorConfig  # noqa: E402
 
-FIG_DIR = Path(__file__).resolve().parent / "figures"
 
 # (parametro, factor de incertidumbre, justificacion del rango)
 # El rango es [valor/factor, valor*factor]. Factor 2 = medio orden de
@@ -160,8 +162,6 @@ def main() -> int:
                     help="menos muestras; para iterar, no para reportar")
     ap.add_argument("--refresh", action="store_true",
                     help="ignora la cache y recorre el modelo")
-    ap.add_argument("--figures-only", action="store_true",
-                    help="solo redibuja desde la cache; falla si no existe")
     args = ap.parse_args()
 
     from SALib.analyze import sobol as sobol_analyze
@@ -175,10 +175,6 @@ def main() -> int:
     print(f"{len(prob['names'])} parametros, muestra base {n}")
     print("Rangos: [valor/factor, valor*factor], factor por incertidumbre")
     print()
-
-    if args.figures_only and not _cache_key(prob, n).exists():
-        print("  no hay cache para esta configuracion; corre sin --figures-only")
-        return 1
 
     X, Y = sample_model(prob, n, refresh=args.refresh)
 
@@ -210,138 +206,8 @@ def main() -> int:
                 note += " (via interaccion)" if note else "solo por interaccion"
             print(f"  {prob['names'][idx]:<16}{s1:>8.3f}{st:>8.3f}   {note}")
 
-    make_figure(prob, results, Y)
     verdicts(Y)
     return 0
-
-
-def make_figure(prob: dict, results: dict, Y: np.ndarray) -> None:
-    import matplotlib
-    matplotlib.use("Agg")
-    import matplotlib.pyplot as plt
-    from matplotlib.gridspec import GridSpec
-    from matplotlib.lines import Line2D
-    from matplotlib.patches import Patch
-
-    from model import figstyle as fs
-
-    fs.apply_style()
-
-    # ----------------------------------------------------------------
-    # Fig 5 — indices de Sobol por conclusion
-    # ----------------------------------------------------------------
-    # Un panel por conclusion. Los paneles comparten eje x (0-1) y el mismo
-    # grosor de barra: si un panel retiene menos parametros, sobra espacio
-    # abajo en vez de engordar sus barras, porque el grosor no debe leerse
-    # como importancia.
-    per_panel = []
-    for key, _ in OUTPUTS:
-        si = results[key]
-        keep = [i for i in np.argsort(si["ST"]) if si["ST"][i] >= 0.02]
-        per_panel.append(keep)
-    n_max = max(len(k) for k in per_panel)
-
-    fig = plt.figure(figsize=(fs.COL_DOUBLE, 2.55))
-    gs = GridSpec(1, 3, figure=fig, wspace=0.62,
-                  left=0.105, right=0.975, top=0.815, bottom=0.275)
-    axes = [fig.add_subplot(gs[0, j]) for j in range(3)]
-
-    for ax, keep, (key, label) in zip(axes, per_panel, OUTPUTS):
-        si = results[key]
-        # las barras van de menor ST abajo a mayor arriba; todas apoyadas en
-        # la base para que los tres paneles compartan linea de arranque
-        y = np.arange(len(keep))
-        ax.barh(y, [si["ST"][i] for i in keep], height=0.62,
-                color=fs.C["st"], label="ST (con interacciones)", zorder=2)
-        ax.barh(y, [max(si["S1"][i], 0) for i in keep], height=0.30,
-                color=fs.C["s1"], label="S1 (efecto propio)", zorder=3)
-        ax.set_yticks(y)
-        ax.set_yticklabels([prob["names"][i] for i in keep])
-        ax.tick_params(axis="y", length=0, pad=1.5)
-        # mismo grosor de barra en los tres: el eje se fija al panel mayor
-        # el tope se fija al panel mas poblado: iguala el grosor de barra
-        # entre paneles, que si no se leeria como importancia
-        ax.set_ylim(-0.75, n_max - 0.25)
-        ax.set_xlim(0, 1)
-        ax.set_xticks([0, 0.5, 1.0])
-        ax.set_xlabel("indice de Sobol")
-        ax.set_title(label, fontsize=6.8, color=fs.C["ink"], pad=3.5)
-
-    fs.label_panels(axes, "abc", dx_pt=-40.0)
-    # leyenda bajo el panel a, fuera del area de barras
-    axes[0].legend(loc="upper left", bbox_to_anchor=(-0.01, -0.235),
-                   fontsize=6.0, handlelength=1.2, ncol=2, columnspacing=1.4)
-    fig.suptitle("Que parametros gobiernan cada conclusion del modelo",
-                 fontsize=8.0, y=0.965)
-    fs.save(fig, "05_sensitivity")
-
-    # ----------------------------------------------------------------
-    # Fig 6 — la tension entre seguridad y contencion
-    # ----------------------------------------------------------------
-    # El 59% de las muestras nunca alcanza nivel letal y quedaba aplastado
-    # sobre la linea de censura en y=360. Se separa en dos paneles: el (a)
-    # muestra solo las que SI matan, con eje real; el (b) cuantifica cuantas
-    # caen en cada cuadrante, que es la conclusion de verdad.
-    safe, kills = Y[:, 1] > 0, Y[:, 2] < 360
-
-    fig = plt.figure(figsize=(fs.COL_DOUBLE, 2.7))
-    gs = GridSpec(1, 2, figure=fig, width_ratios=[1.45, 1.0], wspace=0.30,
-                  left=0.078, right=0.985, top=0.80, bottom=0.165)
-    ax_s = fig.add_subplot(gs[0, 0])
-    ax_b = fig.add_subplot(gs[0, 1])
-
-    # (a) solo las muestras no censuradas: aqui el eje y significa algo
-    live = kills
-    for mask, color, lab in ((live & safe, fs.C["ok"], "cumple ambas"),
-                             (live & ~safe, fs.C["fail"], "dispara sola")):
-        if mask.sum():
-            ax_s.scatter(Y[mask, 1], Y[mask, 2], s=2.6, alpha=0.30,
-                         color=color, linewidths=0, label=lab, rasterized=True)
-    ax_s.axvline(0, color=fs.C["ink"], lw=0.7, ls="--", zorder=4)
-    ax_s.set_xlabel("margen bajo el umbral letal en reposo (nM)")
-    ax_s.set_ylabel("retardo hasta la muerte\ntras el escape (min)")
-    ax_s.set_title("Muestras que si alcanzan nivel letal", fontsize=6.8, pad=3.5)
-    ax_s.legend(loc="upper left", markerscale=3.2, fontsize=6.0,
-                borderaxespad=0.25)
-    # nota dentro del area del panel: fuera se saldria de la pagina
-    ax_s.text(0.015, 0.055, "margen negativo = el switch dispara\n"
-              "con el plasmido retenido", transform=ax_s.transAxes,
-              fontsize=5.6, color=fs.C["mid"], va="bottom", linespacing=1.4)
-
-    # (b) los cuatro cuadrantes, incluido el 59% censurado que el panel (a)
-    # no puede mostrar
-    cats = [
-        ("cumple ambas", safe & kills, fs.C["ok"]),
-        ("seguro, no contiene", safe & ~kills, fs.C["warn"]),
-        ("contiene, dispara sola", ~safe & kills, fs.C["fail"]),
-        ("ninguna", ~safe & ~kills, fs.C["light"]),
-    ]
-    ypos = np.arange(len(cats))[::-1]
-    for yp, (lab, mask, color) in zip(ypos, cats):
-        frac = mask.mean()
-        ax_b.barh(yp, frac * 100, height=0.60, color=color, zorder=2)
-        # una categoria vacia no dibuja barra: se marca el cero para que no
-        # se confunda con un dato que falta
-        txt = f"{frac:.0%}" if frac >= 0.005 else "0% (ninguna muestra)"
-        ax_b.text(frac * 100 + 1.6, yp, txt, va="center",
-                  fontsize=6.5, color=fs.C["ink"])
-    ax_b.set_yticks(ypos)
-    ax_b.set_yticklabels([c[0] for c in cats], fontsize=6.3)
-    ax_b.tick_params(axis="y", length=0, pad=1.5)
-    ax_b.set_xlim(0, 100)
-    ax_b.set_xticks([0, 25, 50, 75, 100])
-    ax_b.set_xlabel("muestras (%)")
-    ax_b.set_title("El fallo dominante es no matar", fontsize=6.8, pad=3.5)
-    ax_b.set_ylim(-0.7, len(cats) - 0.3)
-
-    fs.label_panels([ax_s], "a", dx_pt=-30.0)
-    fs.label_panels([ax_b], "b", dx_pt=-74.0)
-    fig.suptitle("Un margen amplio en reposo impide que la toxina llegue "
-                 "a matar", fontsize=8.0, y=0.965)
-    fs.save(fig, "06_killswitch_tradeoff")
-
-    print()
-    print(f"  figuras escritas en {FIG_DIR.name}/")
 
 
 def verdicts(Y: np.ndarray) -> None:

@@ -14,11 +14,13 @@ solo no puede contestar.
 .venv/bin/python model/fig1_sensor.py
 .venv/bin/python model/fig2_killswitch.py
 .venv/bin/python model/fig3_sensitivity.py --fast
+.venv/bin/python model/figS_supplementary.py --fast
 
-# 2. componer en mm, validar fuentes y exportar PDF + PNG
+# 2. componer en mm, validar fuentes y exportar a main/ y supplementary/
 .venv/bin/python model/compose_figures.py
 
-# el barrido de Sobol se cachea; --refresh lo recorre de nuevo
+# tablas del texto; no dibujan
+.venv/bin/python model/run_analysis.py
 .venv/bin/python model/sensitivity.py --fast
 ```
 .venv/bin/python model/run_analysis.py
@@ -27,11 +29,13 @@ solo no puede contestar.
 .venv/bin/python model/fig1_sensor.py
 .venv/bin/python model/fig2_killswitch.py
 .venv/bin/python model/fig3_sensitivity.py --fast
+.venv/bin/python model/figS_supplementary.py --fast
 
-# 2. componer en mm, validar fuentes y exportar PDF + PNG
+# 2. componer en mm, validar fuentes y exportar a main/ y supplementary/
 .venv/bin/python model/compose_figures.py
 
-# el barrido de Sobol se cachea; --refresh lo recorre de nuevo
+# tablas del texto; no dibujan
+.venv/bin/python model/run_analysis.py
 .venv/bin/python model/sensitivity.py --fast
 ```
 
@@ -175,11 +179,13 @@ estimaciones gruesas.
 .venv/bin/python model/fig1_sensor.py
 .venv/bin/python model/fig2_killswitch.py
 .venv/bin/python model/fig3_sensitivity.py --fast
+.venv/bin/python model/figS_supplementary.py --fast
 
-# 2. componer en mm, validar fuentes y exportar PDF + PNG
+# 2. componer en mm, validar fuentes y exportar a main/ y supplementary/
 .venv/bin/python model/compose_figures.py
 
-# el barrido de Sobol se cachea; --refresh lo recorre de nuevo
+# tablas del texto; no dibujan
+.venv/bin/python model/run_analysis.py
 .venv/bin/python model/sensitivity.py --fast
 ```
 .venv/bin/python model/sensitivity.py --fast   # ~2 min, suficiente para las conclusiones
@@ -189,11 +195,13 @@ estimaciones gruesas.
 .venv/bin/python model/fig1_sensor.py
 .venv/bin/python model/fig2_killswitch.py
 .venv/bin/python model/fig3_sensitivity.py --fast
+.venv/bin/python model/figS_supplementary.py --fast
 
-# 2. componer en mm, validar fuentes y exportar PDF + PNG
+# 2. componer en mm, validar fuentes y exportar a main/ y supplementary/
 .venv/bin/python model/compose_figures.py
 
-# el barrido de Sobol se cachea; --refresh lo recorre de nuevo
+# tablas del texto; no dibujan
+.venv/bin/python model/run_analysis.py
 .venv/bin/python model/sensitivity.py --fast
 ```
 
@@ -277,6 +285,7 @@ Por orden de impacto sobre las conclusiones:
 | `fig1_sensor.py` | paneles de la Fig. 1 (sensor) |
 | `fig2_killswitch.py` | paneles de la Fig. 2 (kill switch) |
 | `fig3_sensitivity.py` | paneles de la Fig. 3 (incertidumbre) |
+| `figS_supplementary.py` | paneles de las figuras S1–S4 |
 | `compose_figures.py` | compone los paneles en mm y exporta |
 | `figstyle.py` | estilo derivado de `figures/theme.json` |
 | `sensitivity.py` | barrido de Sobol; cachea en `.cache/` |
@@ -319,10 +328,12 @@ defectuosa.
 .venv/bin/python model/fig1_sensor.py
 .venv/bin/python model/fig2_killswitch.py
 .venv/bin/python model/fig3_sensitivity.py --fast
+.venv/bin/python model/figS_supplementary.py --fast
 
-# 2. componer en mm, validar fuentes y exportar PDF + PNG
+# 2. componer en mm, validar fuentes y exportar a main/ y supplementary/
 .venv/bin/python model/compose_figures.py
 
-# el barrido de Sobol se cachea; --refresh lo recorre de nuevo
+# tablas del texto; no dibujan
+.venv/bin/python model/run_analysis.py
 .venv/bin/python model/sensitivity.py --fast
 ```
